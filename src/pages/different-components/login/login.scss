@@ -1,0 +1,85 @@
+@import '/src/main.scss';
+
+.login-page {
+  background-color: $textcolor;
+  display: flex;
+  top: 0;
+  position: absolute;
+  left: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-family: $userfont;
+}
+
+.login-header {
+  display: flex;
+  margin-top: calc($index * -5);
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  color: $accent;
+
+  h1 {
+    font-size: calc($index * 2);
+  }
+
+  span {
+    font-size: calc($index * 0.8);
+  }
+}
+
+.page__main--login {
+  margin-top: calc($index * 3);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  display: flex;
+}
+
+.login {
+  align-items: center;
+  width: 100%;
+  display: flex;
+}
+
+.login__input-wrapper {
+  display: flex;
+  flex-direction: column;
+  font-family: $userfont;
+
+  label {
+    font-size: calc($index * 0.5);
+    margin-bottom: calc($index * 0.1);
+  }
+
+  input {
+    width: 20vw;
+    height: 6vh;
+    border-radius: 15px;
+    border: 1px solid $accent;
+    background-color: $buttonColor;
+    margin-bottom: calc($index * 1);
+    padding: 0 calc($index * 0.5);
+  }
+}
+
+.form__submit {
+  width: 21.5vw;
+  height: 6vh;
+  margin-top: calc($index * 2);
+  border-radius: 15px;
+  background-color: $accent;
+  border: 1px solid $accent;
+  color: $textcolor;
+  font-family: $userfont;
+  font-size: calc($index * 0.7);
+  cursor: pointer;
+}

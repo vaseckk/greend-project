@@ -1,0 +1,103 @@
+@import '/src/main.scss';
+
+.header-container {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  width: 100vw;
+}
+
+.header-parameters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  border-radius: 1px;
+  border: solid $accent;
+  border-width: 0 0 1px 0;
+  height: 4vh;
+}
+
+.breadcrumbs-plug {
+  margin-right: auto;
+  margin-left: calc($index);
+}
+
+.breadcrumbs-item {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  flex-direction: row;
+
+  img {
+    width: 13px;
+    height: 13px;
+    margin-left: 15px;
+  }
+}
+
+.breadcrumbs-link {
+  display: flex;
+  flex-direction: row;
+  text-decoration: none;
+  color: $borderColor;
+  height: 100%;
+  align-items: center;
+
+  font-family: $userfont;
+  font-size: calc($index * 0.65);
+}
+
+.header-button-container {
+  margin-left: auto;
+  height: 100%;
+  align-items: center;
+  text-align: center;
+  margin-right: calc($index * 2);
+  display: flex;
+}
+
+.notifications-button {
+  border: none;
+  text-align: center;
+  align-items: center;
+  background-color: rgba(251,65,255,0);
+  margin-right: 10px;
+  -webkit-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+  border-radius: 15px;
+  height: 85%;
+
+  &:hover {
+    background-color: rgba(#142E14, .3);
+    cursor: pointer;
+  }
+
+  img {
+    display: block;
+    width: calc($index * 1);
+  }
+}
+
+.profile-button {
+  border: none;
+  text-align: center;
+  align-items: center;
+  background-color: rgba(251,65,255,0);
+  margin-right: 10px;
+  -webkit-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+  border-radius: 15px;
+  height: 85%;
+
+  &:hover {
+    background-color: rgba(#142E14, .3);
+    cursor: pointer;
+  }
+
+  img {
+    display: block;
+    width: calc($index * 1);
+  }
+}

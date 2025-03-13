@@ -1,0 +1,130 @@
+@import '/src/main.scss';
+
+.search {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button {
+  height: calc($index * 1.5);
+  width: 95%;
+  display: flex;
+  align-items: center;
+  border-radius: 15px;
+  border: 1px solid $accent;
+  background-color: $buttonColor;
+  ::-webkit-scrollbar {
+    width: 12px;
+    margin-right: 5px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: $accent;
+    margin-right: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    margin-right: 5px;
+  }
+}
+
+.search-filters {
+  background-color: $accent;
+  display: flex;
+  width: 10%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: $userfont;
+  color: $textcolor;
+  margin: 0;
+  padding: 0;
+  border-radius: 13px 0 0 13px;
+  cursor: pointer;
+  ::-webkit-scrollbar {
+    width: 12px;
+    margin-right: 5px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: $accent;
+    margin-right: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    margin-right: 5px;
+  }
+
+  img {
+    width: calc($index * 1);
+    display: flex;
+    margin-top: calc($index * 0.2);
+    margin-left: 5px;
+    height: calc($index * 1);
+  }
+}
+
+.search-content {
+  background-color: $buttonColor;
+  width: 9.2%;
+  border-radius: 15px;
+  height: 15vh;
+  overflow-y: auto;
+  margin-top: calc($index * 6.6);
+  justify-content: center;
+  z-index: 1;
+  position: fixed;
+  text-align: center;
+  align-items: center;
+  -webkit-transition: all .05s linear;
+  transition: all .05s linear;
+
+  ::-webkit-scrollbar {
+    width: 12px;
+    margin-right: 5px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: $accent;
+    margin-right: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    margin-right: 5px;
+  }
+  ul {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+  }
+
+  li {
+    list-style: none;
+    padding: 8px 0;
+    margin: 0;
+    font-family: $userfont;
+    -webkit-transition: all .05s linear;
+    transition: all .05s linear;
+  }
+
+  li:hover {
+    background-color: rgba(0, 0, 0, 0.14);
+    cursor: pointer;
+  }
+}
+.search__input-wrapper {
+  width: 88%;
+}
+
+.search__input {
+  background-color: rgba(31, 43, 23, 0);
+  border: none;
+  margin-left: 10px;
+  font-size: calc($index * 0.6);
+  font-family: $userfont;
+  outline: none;
+  width: 100%;
+}

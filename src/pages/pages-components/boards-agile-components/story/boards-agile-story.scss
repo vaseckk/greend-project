@@ -1,0 +1,92 @@
+@import '/src/main.scss';
+
+.story {
+  display: flex;
+  cursor: pointer;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  height: calc($index * 1.5);
+  background-color: $buttonColor;
+  font-family: $userfont;
+  border: solid $accent;
+  border-width: 0 0 1px 0;
+
+  img {
+    width: calc($index * 0.9);
+    height: calc($index * 0.9);
+    margin: 0 calc($index * 0.2);
+  }
+
+  h1 {
+    font-weight: 400;
+    font-size: calc($index * 0.7);
+    margin-right: calc($index * 0.5);
+  }
+
+  p {
+    opacity: .7;
+    font-size: calc($index * 0.6);
+  }
+}
+
+.table-story {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: $userfont;
+}
+
+th, tr {
+  text-align: left;
+  vertical-align: middle;
+  padding: 10px;
+  border: solid $accent;
+  border-width: 1px 1px 1px 0;
+}
+
+.content-story {
+  cursor: pointer;
+  width: 100%;
+  background-color: $buttonColor;
+  border: none;
+  border-radius: 15px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.content-story-parametres {
+  margin: 5px;
+}
+
+.table_text-story {
+  font-size: calc($index * 0.6);
+  font-family: $userfont;
+}
+
+.table-count-story {
+  display: flex;
+  flex-direction: row;
+  height: auto;
+  font-family: $userfont;
+  margin-top: calc($index * 0.5);
+  justify-content: flex-start;
+  box-sizing: border-box;
+  align-items: center;
+
+  span {
+    margin-right: 5px;
+    font-size: calc($index * 0.6);
+  }
+}
+
+.count-time-span {
+  background-color: $countTime;
+  border-radius: 15px;
+}
+
+.count-time {
+  margin-left: calc($index * 0.4);
+  margin-right: calc($index * 0.4);
+  opacity: .8;
+}

@@ -1,55 +1,219 @@
-import '../sidebar/sidebar.scss';
-import {useState} from 'react';
+import './sidebar.scss';
+import { useState} from 'react';
+import { motion, AnimatePresence} from 'framer-motion';
 import {navItems} from '../../../const.ts';
 
-function Sidebar(): JSX.Element {
-  const [isHovered, setIsHovered] = useState(false);
+function ExampleSidebar() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Варианты анимации для сайдбара
+  const sidebarVariants = {
+    closed: {
+      width: '3vw',
+      transition: { duration: 0.35 }
+    },
+    open: {
+      width: '15vw',
+      transition: { duration: 0.3 }
+    }
+  };
+
+  // Варианты анимации для основного текста
+  const textTitle = {
+    closed: {
+      x: 0,
+      opacity: 1,
+      transition: { duration: 0.3 }
+    },
+    open: {
+      opacity: 1,
+      transition: { duration: 0.3, delay: 0.1 }
+    }
+  };
+
+  const textNavigation = {
+    closed: {
+      x: 0,
+      opacity: 1,
+      transition: { duration: 0.3 }
+    },
+    open: {
+      x: 0, // Перемещение к центру
+      opacity: 1,
+      transition: { duration: 0.3, delay: 0.1 }
+    }
+  };
+
+  const buttonFooter = {
+    closed: {
+      x: 0,
+      opacity: 1,
+      transition: { duration: 0.3 }
+    },
+    open: {
+      x: 0,
+      opacity: 1,
+      transition: { duration: 0.3, delay: 0.1 }
+    }
+  };
+
+  const buttonFooterBlock = {
+    closed: {
+      width: '88%',
+    },
+    open: {
+      width: '96%',
+    }
+  };
+
+  const buttonMainNavigation = {
+    closed: {
+      width: '110%',
+    },
+    open: {
+      width: '101%',
+    }
+  };
+
+  const additionalTextNavigation = {
+    closed: {
+      opacity: 0,
+      transition: { duration: 0.1}
+    },
+    open: {
+      opacity: 1,
+      transition: { duration: 0.3, delay: 0.1 }
+    }
+  };
+
+  const additionalIcon = {
+    closed: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.1 }
+    },
+    open: {
+      opacity: 1,
+      x: 10,
+      transition: { duration: 0}
+    }
+  };
 
   return (
-    <div
-      className={isHovered ? 'sidebar-active' : 'sidebar-noActive'}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <motion.div
+      className={`example-sidebar ${isOpen ? 'sidebar-open' : ''}`}
+      variants={sidebarVariants}
+      initial="closed"
+      animate={isOpen ? 'open' : 'closed'}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
     >
-      <div className={isHovered ? 'sidebar-header' : 'sidebar-header-noActive'}>
-        <h3>gd</h3>
+      <div className="sidebar-header">
+        <motion.div
+          className="header-text"
+          variants={textTitle}
+        >
+          <div className="header-text__title">
+            <h3>gd</h3>
+          </div>
+        </motion.div>
       </div>
-      <nav className={isHovered ? 'sidebar-body' : 'sidebar-body-noActive'}>
-        <ul className={isHovered ? 'sidebar-wrapper' : 'sidebar-wrapper-noActive'}>
-          {navItems.map((item) => (
-            <li key={item.text} className={isHovered ? 'sidebar__item' : 'sidebar__item-noActive'}>
-              <div className="sidebar__item_border">
-                <img src={item.icon} alt={item.text}/>
-                <a className={isHovered ? 'sidebar__link' : 'sidebar__link-noActive'}>{item.text}</a>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </nav>
-      <div className={isHovered ? 'sidebar-footer' : 'sidebar-footer-noActive'}>
-        <div className={isHovered ? 'sidebar-wrapper-footer' : 'sidebar-wrapper-footer-noActive'}>
-          <button className={isHovered ? 'sidebar-button_setting' : 'sidebar-button_setting-noActive'}>
-            <span className={isHovered ? 'sidebar-button-container_setting' : 'sidebar-button-container_setting-noActive'}>
-              {isHovered && <p>Настроить</p>}
+
+      <div className="sidebar-main">
+        <motion.div
+          className="main-text"
+          variants={textNavigation}
+        >
+          <nav className='sidebar-body-noActive'>
+            <div className='sidebar-wrapper-noActive'>
+              {navItems.map((item) => (
+                <motion.button key={item.text} className='sidebar__item-noActive' variants={buttonMainNavigation}>
+                  <div className="sidebar__item_border">
+                    <motion.img src={item.icon} alt={item.text} variants={additionalIcon} />
+                    <AnimatePresence>
+                      {isOpen && (
+                        <motion.div
+                          className="additional-text"
+                          variants={additionalTextNavigation}
+                          initial="closed"
+                          animate="open"
+                          exit="closed"
+                        >
+                          <p className='sidebar__link'>{item.text}</p>
+
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </nav>
+        </motion.div>
+
+
+      </div>
+
+      <motion.div
+        className="sidebar-footer-motion"
+        variants={buttonFooter}
+      >
+        <div className='sidebar-wrapper-footer'>
+          <motion.button className='sidebar-button_setting' variants={buttonFooterBlock}>
+            <span className='sidebar-button-container_setting' >
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    variants={additionalTextNavigation}
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                  >
+                    <p>Настроить</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <img src="/img/linear_scale.png" alt="" />
             </span>
-          </button>
-          <button className={isHovered ? 'sidebar-button_new_task' : 'sidebar-button_new_task-noActive'}>
-            <span className={isHovered ? 'sidebar-button-container_new_task' : 'sidebar-button-container_new_task-noActive'}>
-              {isHovered && <p>Новая задача</p>}
+          </motion.button>
+          <motion.button className='sidebar-button_new_task' variants={buttonFooterBlock}>
+            <span className='sidebar-button-container_new_task'>
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    variants={additionalTextNavigation}
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                  >
+                    <p>Новая задача</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <img src="/img/add_ad.png" alt="" />
             </span>
-          </button>
-          <button className={isHovered ? 'sidebar-button_out' : 'sidebar-button_out-noActive'}>
-            <span className={isHovered ? 'sidebar-button-container_out' : 'sidebar-button-container_out-noActive'}>
-              {isHovered && <p>Выход</p>}
+          </motion.button>
+          <motion.button className='sidebar-button_out' variants={buttonFooterBlock}>
+            <span className='sidebar-button-container_out'>
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    variants={additionalTextNavigation}
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                  >
+                    <p>Выход</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <img src="/img/input.png" alt="" />
             </span>
-          </button>
+          </motion.button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
-export default Sidebar;
+export default ExampleSidebar;

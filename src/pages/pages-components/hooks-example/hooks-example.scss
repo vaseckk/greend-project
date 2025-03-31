@@ -1,0 +1,65 @@
+@import '/src/main.scss';
+
+* {
+  margin-bottom: 15px;
+}
+
+.traffic-light {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+
+  &__section {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: grey;
+    opacity: 0.3;
+    transition: opacity 0.3s;
+
+    &--active {
+      opacity: 1;
+    }
+
+    &:nth-child(1).traffic-light__section--active {
+      background-color: #FF5F56;
+    }
+
+    &:nth-child(2).traffic-light__section--active {
+      background-color: #FFBD2E;
+    }
+
+    &:nth-child(3).traffic-light__section--active {
+      background-color: #27C93F;
+    }
+  }
+
+  &__controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  &__button {
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+}
+
+.traffic-light__section {
+  &--active {
+    opacity: 1;
+  }
+  &--off {
+    opacity: 0.3;
+  }
+  &--emergency {
+    background-color: #FF5F56;
+  }
+
+  // Цвета для обычного режима
+  &:nth-child(1) { background-color: #FF5F56; } // Красный
+  &:nth-child(2) { background-color: #FFBD2E; } // Жёлтый
+  &:nth-child(3) { background-color: #27C93F; } // Зелёный
+}

@@ -1,10 +1,10 @@
 import { HelmetProvider } from 'react-helmet-async';
-import ExampleSidebar from '../../pages/pages-components/example-sidebar/example-sidebar.tsx';
+import Task from '../../pages/different-components/task/task.tsx';
 
 function App(): JSX.Element {
   return (
     <HelmetProvider>
-      <ExampleSidebar />
+      <Task/>
     </HelmetProvider>
   );
 }

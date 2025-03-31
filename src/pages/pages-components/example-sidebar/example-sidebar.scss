@@ -14,7 +14,16 @@
   font-family: $userfont;
 }
 
-.sidebar-header, .sidebar-main, .sidebar-footer {
+.sidebar-header, .sidebar-main, {
+  width: 100%;
+}
+
+.sidebar-main {
+  height: 30vh;
+}
+
+.main-text {
+  height: 100%;
   width: 100%;
 }
 
@@ -27,13 +36,65 @@
   color: $textcolor;
 }
 
+.sidebar-body-noActive {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-wrapper-noActive {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .sidebar__item_border {
   display: flex;
-  align-items: center;
-  position: relative;
   width: 100%;
-  height: 40px; // Фиксированная высота
-  overflow: hidden;
+  height: 100%;
+  align-items: center;
+  padding: 0;
+  margin-left: 0;
+  margin-right: 0;
+  position: relative;
+  justify-content: center;
+  -webkit-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+  border-radius: 12px;
+  margin-bottom: 10px;
+
+  img {
+    width: calc($index * 1.2);
+    position: absolute;
+    margin: 5px 0;
+    height: calc($index * 1.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  p {
+    padding: 0;
+    margin: 0;
+    font-size: calc($index * 0.65);
+    font-family: $userfont;
+  }
+
+  &:hover {
+    cursor: pointer;
+    border: 1px solid $borderColor;
+    position: relative;
+  }
+}
+
+/* При открытом сайдбаре выравниваем контент по левому краю */
+.sidebar-open .sidebar__item_border {
+  transition: all 0.3s ease;
+  justify-content: normal;
 }
 
 .item-content {
@@ -41,33 +102,12 @@
   align-items: center;
 }
 
-.sidebar-button-container_setting-noActive,
-.sidebar-button-container_new_task-noActive,
-.sidebar-button-container_out {
-  display: flex;
-  align-items: center;
-  position: relative;
-  height: 40px; // Фиксированная высота
-  overflow: hidden;
-}
-
 .additional-text {
   white-space: nowrap;
-  margin-left: 8px;
+  margin-left: calc($index * 2);
+  color: $textcolor;
+  font-size: calc($index * 0.6);
   overflow: hidden;
-}
-
-// Общие стили для всех кнопок и элементов навигации
-.sidebar-button_setting-noActive,
-.sidebar-button_new_task-noActive,
-.sidebar-button_out {
-  display: flex;
-  align-items: center;
-  height: 40px;
-  width: 100%;
-  background: transparent;
-  border: none;
-  cursor: pointer;
 }
 
 // Стили для элементов списка
@@ -76,17 +116,148 @@
   align-items: center;
   height: 40px;
   margin-bottom: 8px;
+  background-color: rgba(20, 46, 20, 0);
+  border: none;
 }
 
-.sidebar-wrapper-noActive {
+.sidebar-footer-motion {
+  margin-top: auto;
+  display: flex;
+  margin-bottom: 5px;
+  padding: 0;
+  text-align: center;
   width: 100%;
   align-items: center;
-  position: relative;
-  overflow: hidden;
+  justify-content: center;
 }
 
-ul.sidebar-wrapper-noActive {
+.sidebar-wrapper-footer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
   padding: 0;
-  margin: 0;
-  list-style: none;
+}
+
+.sidebar-button_setting {
+  display: flex;
+  justify-content: center; // Распределяет пространство между элементами
+  align-items: center; // Центрирует элементы по вертикали
+  height: calc($index * 1.7);
+  background-color: rgba(#142E14, .5);
+  border: none;
+  margin-bottom: 15px;
+  border-radius: 12px;
+}
+
+.sidebar-button-container_setting {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 95%;
+  color: $textcolor;
+  font-size: calc($index * 0.65);
+  letter-spacing: 0.5px;
+  opacity: .8;
+  -webkit-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+
+  &:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  img {
+    margin-left: auto;
+    width: calc($index * 1.2);
+    height: calc($index * 1.2);
+  }
+
+  p {
+    margin-right: auto;
+    padding-left: 5px;
+    font-family: $userfont;
+  }
+}
+
+.sidebar-button_new_task {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc($index * 1.7);
+  background-color: rgba(#142E14, .99);
+  border: none;
+  margin-bottom: 10px;
+  border-radius: 12px;
+}
+
+.sidebar-button-container_new_task {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 95%;
+  color: $textcolor;
+  font-size: calc($index * 0.65);
+  letter-spacing: 0.5px;
+  opacity: .8;
+  -webkit-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+
+  &:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  img {
+    margin-left: auto;
+    width: calc($index * 1.2);
+    height: calc($index * 1.2);
+  }
+
+  p {
+    margin-right: auto;
+    padding-left: 5px;
+    font-family: $userfont;
+  }
+}
+
+.sidebar-button_out {
+  display: flex;
+  justify-content: center; // Распределяет пространство между элементами
+  align-items: center; // Центрирует элементы по вертикали
+  height: calc($index * 2);
+  background-color: rgba(#142E14, .0);
+  border: none;
+  border-radius: $borderRadius;
+}
+
+.sidebar-button-container_out {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 95%;
+  color: $textcolor;
+  font-size: calc($index * 0.65);
+  letter-spacing: 0.5px;
+  opacity: .8;
+  -webkit-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+
+  &:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  img {
+    margin-left: auto;
+    width: calc($index * 1.2);
+    height: calc($index * 1.2);
+  }
+
+  p {
+    margin-right: auto;
+    padding-left: 5px;
+    font-family: $userfont;
+  }
 }

@@ -26,7 +26,7 @@
 .page__main-container {
   height: 100%;
   margin-left: auto;
-  width: calc(100% - ($index * 2.2));
+  width: calc(100vw - 3vw);
   flex-direction: column;
 }
 

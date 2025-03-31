@@ -5,4 +5,5 @@ export const navItems = [
   { text: 'Доски agile', icon: '/img/select_window.png' },
 ];
 
-
+export const MAX_LENGTH_SHOW_TAGS = 4;
+export const MIN_LENGTH_SHOW_TAGS = 0;

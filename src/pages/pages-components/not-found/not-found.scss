@@ -1,0 +1,45 @@
+@import '/src/main.scss';
+
+.not-found {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: $accent;
+}
+
+.not-found_container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  font-family: $userfont;
+
+  p {
+    color: $textcolor;
+    font-size: calc($index * 1);
+    font-weight: 300;
+  }
+
+  button {
+    background-color: $textcolor;
+    border: none;
+    border-radius: 15px;
+    color: $accent;
+    width: calc($index * 15);
+    height: calc($index * 2);
+    cursor: pointer;
+    font-size: calc($index * 0.7);
+    font-weight: 300;
+    transition: 250ms all ease-in-out;
+
+    &:hover {
+      background-color: #142E14;
+      color: $textcolor;
+    }
+  }
+}

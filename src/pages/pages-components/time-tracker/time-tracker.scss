@@ -1,0 +1,77 @@
+@import '/src/main.scss';
+
+.time-tracker {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.time-block {
+  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0 0 10px 0;
+}
+
+.time-label {
+  font-weight: 400;
+  opacity: .7;
+  font-family: $userfont;
+  width: 25%;
+  display: flex;
+  align-items: flex-start;
+}
+
+.time-value {
+  font-size: calc($index * .65);
+  font-weight: 300;
+  font-family: $userfont;
+  margin-left: calc($index * .3);
+}
+
+.time-scrolling_content_expected {
+  width: calc($index * 5);
+  height: calc($index * 1);
+  background-color: $buttonColor;
+  border-radius: 15px;
+}
+
+.time-scrolling_expected {
+  background-color: #FF0202;
+  transition: width 0.3s ease;
+  height: 100%;
+  border-radius: 15px;
+}
+
+.time-scrolling_content_remained {
+  width: calc($index * 5);
+  height: calc($index * 1);
+  background-color: $buttonColor;
+  border-radius: 15px;
+}
+
+.time-scrolling_remained {
+  background-color: #1FAC00;
+  transition: width 0.3s ease;
+  height: 100%;
+  border-radius: 15px;
+}
+
+.time-scrolling_content_spent {
+  width: calc($index * 5);
+  height: calc($index * 1.2);
+  background-color: $buttonColor;
+  border-radius: 15px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: right;
+}
+
+.time-scrolling_spent {
+  background-color: #020EFF;
+  transition: width 0.3s ease;
+  height: 100%;
+  border-radius: 15px;
+}

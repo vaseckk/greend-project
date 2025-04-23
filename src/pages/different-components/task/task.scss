@@ -109,6 +109,7 @@
 
 .task-additional {
   width: 30%;
+  margin-left: calc($index * 1);
 }
 
 .project_details_title {
@@ -164,6 +165,50 @@
 
 .project_details_value {
   font-size: calc($index * 0.7);
+  font-weight: 350;
+}
+
+.task-additional_content {
+  display: flex;
+  flex-direction: column;
+
+
+  ul {
+    flex-direction: column;
+    display: flex;
+    margin: 0;
+
+    li {
+      display: flex;
+      height: auto;
+      padding: 0;
+      flex-direction: row;
+      margin: 0 0 10px 0;
+      align-items: center;
+    }
+  }
+}
+
+.task-additional_value {
+  background-color: $buttonColor;
+  border-radius: 15px;
+  height: calc($index * 1.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  p {
+    margin: 5px 15px;
+    padding: 0;
+    font-size: calc($index * 0.7);
+    font-weight: 350;
+  }
+}
+
+.task-additional_key {
+  margin: 0 10px 0 0;
+  font-size: calc($index * 0.7);
+  opacity: .7;
 }
 
 .tags-section {
@@ -172,4 +217,6 @@
   margin-top: 10px;
   width: 100%;
 }
+
+
 

@@ -1,7 +1,8 @@
 import './sidebar.scss';
 import { useState} from 'react';
 import { motion, AnimatePresence} from 'framer-motion';
-import {navItems} from '../../../const.ts';
+import {AppRoute, navItems} from '../../../const.ts';
+import {Link} from 'react-router-dom';
 
 function ExampleSidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -128,7 +129,7 @@ function ExampleSidebar() {
             <div className='sidebar-wrapper-noActive'>
               {navItems.map((item) => (
                 <motion.button key={item.text} className='sidebar__item-noActive' variants={buttonMainNavigation}>
-                  <div className="sidebar__item_border">
+                  <Link to={item.path} className="sidebar__item_border">
                     <motion.img src={item.icon} alt={item.text} variants={additionalIcon} />
                     <AnimatePresence>
                       {isOpen && (
@@ -144,7 +145,7 @@ function ExampleSidebar() {
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </div>
+                  </Link>
                 </motion.button>
               ))}
             </div>
@@ -177,7 +178,7 @@ function ExampleSidebar() {
             </span>
           </motion.button>
           <motion.button className='sidebar-button_new_task' variants={buttonFooterBlock}>
-            <span className='sidebar-button-container_new_task'>
+            <Link to={AppRoute.NewTask} className='sidebar-button-container_new_task'>
               <AnimatePresence>
                 {isOpen && (
                   <motion.div
@@ -191,10 +192,10 @@ function ExampleSidebar() {
                 )}
               </AnimatePresence>
               <img src="/img/add_ad.png" alt="" />
-            </span>
+            </Link>
           </motion.button>
           <motion.button className='sidebar-button_out' variants={buttonFooterBlock}>
-            <span className='sidebar-button-container_out'>
+            <Link to={AppRoute.Login} className='sidebar-button-container_out'>
               <AnimatePresence>
                 {isOpen && (
                   <motion.div
@@ -208,7 +209,7 @@ function ExampleSidebar() {
                 )}
               </AnimatePresence>
               <img src="/img/input.png" alt="" />
-            </span>
+            </Link>
           </motion.button>
         </div>
       </motion.div>

@@ -4,13 +4,22 @@ import SearchFor from '../../pages-components/search-for/search-for.tsx';
 import './task.scss';
 import useDropdownButton from '../../../hooks/use-dropdown-button/use-dropdown-button.ts';
 import Tags from '../../pages-components/tags/tags.tsx';
+import TaskDialog from '../../pages-components/task-dialog/task-dialog.tsx';
+import TimeTracker from '../../pages-components/time-tracker/time-tracker.tsx';
+import {Helmet} from 'react-helmet-async';
 
 function Task(): JSX.Element {
   const dropdownDetails = useDropdownButton();
   const dropdownDescription = useDropdownButton();
+  const dropdownDialog = useDropdownButton();
+  const dropdwonParticipal = useDropdownButton();
+  const dropdwonDate = useDropdownButton();
 
   return (
     <div className="page__main">
+      <Helmet>
+        <title>Greend: Задача</title>
+      </Helmet>
       <div className="page__main__parametres">
         <article className="page__main-sideber">
           <Sidebar/>
@@ -65,7 +74,7 @@ function Task(): JSX.Element {
                                     </p>
                                   </li>
                                   <section className='tags-section'>
-                                    <Tags />
+                                    <Tags/>
                                   </section>
                                 </ul>
                               </div>
@@ -105,11 +114,86 @@ function Task(): JSX.Element {
                               </div>
                             )}
                           </article>
+
+                          <article className="project_task-dialog" ref={dropdownDialog.dropdownRef}>
+                            <div className="project_details_title project_description"
+                              onClick={dropdownDialog.toggleDropdown}
+                            >
+                              <img src="../img/chevron_right.png" alt=""
+                                style={{transform: dropdownDialog.isOpen ? 'rotate(90deg)' : 'none'}}
+                              />
+                              <p>Комментарии</p>
+                            </div>
+                            {dropdownDialog.isOpen && (
+                              <TaskDialog />
+                            )}
+                          </article>
                         </div>
                       </section>
 
                       <section className="task-additional">
-                        ghhdfghdfhg
+                        <article className="task-additional_block participating-in-project">
+                          <div className="project_details_title participating-in-project_title"
+                            onClick={dropdwonParticipal.toggleDropdown}
+                          >
+                            <img src="../img/chevron_right.png" alt=""
+                              style={{transform: dropdwonParticipal.isOpen ? 'rotate(90deg)' : 'none'}}
+                            />
+                            <p>Участвующие в проекте</p>
+                          </div>
+                          {dropdwonParticipal.isOpen && (
+                            <div className="task-additional_content project_description">
+                              <ul>
+                                <li>
+                                  <p className="task-additional_key project_details">Создатель:</p>
+                                  <div className="task-additional_value project_details"><p>Костина Мария Сергеевна</p>
+                                  </div>
+                                </li>
+                                <li>
+                                  <p className="task-additional_key project_details">Исполнитель:</p>
+                                  <div className="task-additional_value project_details"><p>Костина Мария Сергеевна</p>
+                                  </div>
+                                </li>
+                                <li>
+                                  <p className="task-additional_key project_details">Тестестировщик:</p>
+                                  <div className="task-additional_value project_details"><p>Костина Мария Сергеевна</p>
+                                  </div>
+                                </li>
+                              </ul>
+                            </div>
+                          )}
+                        </article>
+
+                        <article className="task-additional_block participating-in-project">
+                          <div className="project_details_title participating-in-project_title"
+                            onClick={dropdwonDate.toggleDropdown}
+                          >
+                            <img src="../img/chevron_right.png" alt=""
+                              style={{transform: dropdwonDate.isOpen ? 'rotate(90deg)' : 'none'}}
+                            />
+                            <p>Даты</p>
+                          </div>
+                          {dropdwonDate.isOpen && (
+                            <div className="task-additional_content project_description">
+                              <ul>
+                                <li>
+                                  <p className="task-additional_key project_details">Создана:</p>
+                                  <div className="task-additional_value project_details"><p>05.05.2024</p>
+                                  </div>
+                                </li>
+                                <li>
+                                  <p className="task-additional_key project_details">Обновлена:</p>
+                                  <div className="task-additional_value project_details"><p>08.05.2024</p>
+                                  </div>
+                                </li>
+                              </ul>
+                            </div>
+                          )}
+                        </article>
+
+                        <article className="time-tracker-container">
+                          <TimeTracker totalHours={24}/>
+                        </article>
                       </section>
 
                     </div>

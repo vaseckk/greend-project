@@ -61,6 +61,7 @@
   align-items: center;
   padding: 0;
   margin-left: 0;
+  text-decoration: none;
   margin-right: 0;
   position: relative;
   justify-content: center;
@@ -79,9 +80,11 @@
 
   p {
     padding: 0;
+
     margin: 0;
     font-size: calc($index * 0.65);
     font-family: $userfont;
+    font-weight: 300;
   }
 
   &:hover {
@@ -91,7 +94,6 @@
   }
 }
 
-/* При открытом сайдбаре выравниваем контент по левому краю */
 .sidebar-open .sidebar__item_border {
   transition: all 0.3s ease;
   justify-content: normal;
@@ -142,8 +144,8 @@
 
 .sidebar-button_setting {
   display: flex;
-  justify-content: center; // Распределяет пространство между элементами
-  align-items: center; // Центрирует элементы по вертикали
+  justify-content: center;
+  align-items: center;
   height: calc($index * 1.7);
   background-color: rgba(#142E14, .5);
   border: none;
@@ -178,6 +180,7 @@
     margin-right: auto;
     padding-left: 5px;
     font-family: $userfont;
+    font-weight: 300;
   }
 }
 
@@ -196,6 +199,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  text-decoration: none;
   width: 95%;
   color: $textcolor;
   font-size: calc($index * 0.65);
@@ -219,6 +223,7 @@
     margin-right: auto;
     padding-left: 5px;
     font-family: $userfont;
+    font-weight: 300;
   }
 }
 
@@ -236,6 +241,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  text-decoration: none;
   width: 95%;
   color: $textcolor;
   font-size: calc($index * 0.65);
@@ -259,5 +265,6 @@
     margin-right: auto;
     padding-left: 5px;
     font-family: $userfont;
+    font-weight: 300;
   }
 }

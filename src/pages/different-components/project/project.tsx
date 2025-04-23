@@ -3,6 +3,7 @@ import Header from '../../pages-components/header/header.tsx';
 import './project.scss';
 import SearchFor from '../../pages-components/search-for/search-for.tsx';
 import useDropdownButton from '../../../hooks/use-dropdown-button/use-dropdown-button.ts';
+import {Helmet} from 'react-helmet-async';
 
 function Project(): JSX.Element {
   const dropdownDetails = useDropdownButton();
@@ -12,6 +13,9 @@ function Project(): JSX.Element {
 
   return (
     <div className="page__main">
+      <Helmet>
+        <title>Greend: Проект</title>
+      </Helmet>
       <div className="page__main__parametres">
         <article className="page__main-sideber">
           <Sidebar/>

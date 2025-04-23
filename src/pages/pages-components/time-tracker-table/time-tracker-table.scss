@@ -1,0 +1,54 @@
+@import '/src/main.scss';
+
+.table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: $userfont;
+  margin-top: calc($index * 0.8);
+}
+
+.table-header {
+  text-align: center;
+  vertical-align: middle;
+  padding: 10px;
+  border: solid $accent;
+  border-width: 0 1px 1px 0;
+
+  th {
+    text-align: center;
+    vertical-align: middle;
+    align-items: center;
+    padding: 10px;
+    border: solid $accent;
+    border-width: 0 1px 1px 0;
+  }
+}
+
+.title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  font-weight: 350;
+  height: calc($index * 0.5);
+  font-size: calc($index * 0.7);
+}
+
+.table_content {
+  height: 100vh;
+  text-align: center;
+  vertical-align: middle;
+  padding: 10px;
+  border: solid $accent;
+  border-width: 0 1px 1px 0;
+
+  th {
+    text-align: center;
+    vertical-align: middle;
+    align-items: center;
+    padding: 10px;
+    border: solid $accent;
+    border-width: 0 1px 1px 0;
+  }
+}

@@ -1,8 +1,12 @@
 import './login.scss';
+import {Helmet} from 'react-helmet-async';
 
 function Login(): JSX.Element {
   return (
     <div className="login-page">
+      <Helmet>
+        <title>Greend: Вход</title>
+      </Helmet>
       <header className="login-header">
         <h1 className="login-header-title">
           GreenD

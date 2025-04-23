@@ -1,0 +1,41 @@
+@import '/src/main.scss';
+
+.message-list__container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font-family: $userfont;
+}
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.message-list_time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  p {
+    font-size: calc($index * 0.55);
+    opacity: .8;
+    color: $borderColor;
+  }
+}
+
+.message-list__description {
+  background-color: $buttonColor;
+  border-radius: 15px;
+  p {
+    margin: calc($index * 0.5);
+    font-size: calc($index * 0.7);
+  }
+}
+
+.message-list_sender {
+  p {
+    margin: 5px 0;
+    font-size: calc($index * 0.55);
+  }
+}

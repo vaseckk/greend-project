@@ -1,0 +1,13 @@
+@import '/src/main.scss';
+
+.task-dialog {
+  display: flex;
+  flex-direction: row;
+  margin-left: calc($index * .9);
+}
+
+.task-dialog__container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}

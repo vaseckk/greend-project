@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from 'react';
 
-function UseDropdown() {
+function
+UseDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   // isOpen - это начальное состояние, которое не изменяется,
   // SetIsOpen - это переменная, в которую запишется изменённое состояние блока

@@ -3,6 +3,7 @@ import Header from '../../pages-components/header/header.tsx';
 import './epic-story.scss';
 import SearchFor from '../../pages-components/search-for/search-for.tsx';
 import useDropdownButton from '../../../hooks/use-dropdown-button/use-dropdown-button.ts';
+import {Helmet} from 'react-helmet-async';
 
 function EpicStory(): JSX.Element {
   const dropdownDescription = useDropdownButton();
@@ -10,6 +11,9 @@ function EpicStory(): JSX.Element {
 
   return (
     <div className="page__main">
+      <Helmet>
+        <title>Greend: Epic Story</title>
+      </Helmet>
       <div className="page__main__parametres">
         <article className="page__main-sideber">
           <Sidebar/>

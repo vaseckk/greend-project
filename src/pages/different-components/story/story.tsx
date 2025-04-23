@@ -3,6 +3,7 @@ import Header from '../../pages-components/header/header.tsx';
 import './story.scss';
 import SearchFor from '../../pages-components/search-for/search-for.tsx';
 import useDropdownButton from '../../../hooks/use-dropdown-button/use-dropdown-button.ts';
+import {Helmet} from 'react-helmet-async';
 
 function Story(): JSX.Element {
   const dropdownDescription = useDropdownButton();
@@ -10,6 +11,9 @@ function Story(): JSX.Element {
 
   return (
     <div className="page__main">
+      <Helmet>
+        <title>Greend: Story</title>
+      </Helmet>
       <div className="page__main__parametres">
         <article className="page__main-sideber">
           <Sidebar/>

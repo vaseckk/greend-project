@@ -6,17 +6,43 @@ import TimeTrackerTask from '../../pages/different-components/time-tracker-task/
 import NewTask from '../../pages/different-components/new-task/new-task.tsx';
 import BoardsAgile from '../../pages/different-components/boards-agile/boards-agile.tsx';
 import NotFound from '../../pages/pages-components/not-found/not-found.tsx';
+import {useAppSelector} from '../../hooks';
+import {getAuthStatus} from '../../store/auth-slice/auth-selector.ts';
+import PrivateRoute from '../private-route/private-route.tsx';
 
 function App(): JSX.Element {
+  const authorizationStatus = useAppSelector(getAuthStatus);
+
   return (
     <HelmetProvider>
       <BrowserRouter>
         <Routes>
           <Route path={AppRoute.Login} element={<Login />} />
-          <Route path={AppRoute.TimeTrackerTask} element={<TimeTrackerTask />} />
-          <Route path={AppRoute.NewTask} element={<NewTask />} />
-          <Route path={AppRoute.BoardsAgile} element={<BoardsAgile />} />
-          <Route path={AppRoute.NotFound} element={<NotFound />} />
+          <Route
+            path={AppRoute.TimeTrackerTask}
+            element={
+              <PrivateRoute authorizationStatus={authorizationStatus}>
+                <TimeTrackerTask />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={AppRoute.NewTask}
+            element={
+              <PrivateRoute authorizationStatus={authorizationStatus}>
+                <NewTask />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={AppRoute.BoardsAgile}
+            element={
+              <PrivateRoute authorizationStatus={authorizationStatus}>
+                <BoardsAgile />
+              </PrivateRoute>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </HelmetProvider>

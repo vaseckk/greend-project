@@ -1,8 +1,16 @@
+import {StatusCodes} from 'http-status-codes';
+
 export const MAX_LENGTH_SHOW_TAGS = 4;
 export const MIN_LENGTH_SHOW_TAGS = 0;
 
 export const BACKEND_URL = 'http://api.anst-dev.ru';
 export const REQUEST_TIMEOUT = 5000;
+
+export const StatusCodeMapping: Record<number, boolean> = {
+  [StatusCodes.BAD_REQUEST]: true,
+  [StatusCodes.UNAUTHORIZED]: false,
+  [StatusCodes.NOT_FOUND]: true,
+};
 
 export enum AppRoute {
   NewTask = '/newTask',
@@ -32,7 +40,44 @@ export const navItems = [
 ];
 
 export enum AuthorizationStatus {
-  Auth = 'AUTH',
-  NoAuth = 'NO_AUTH',
-  Unknown = 'UNKNOWN',
+  Loading = 'loading',
+  Auth = 'auth',
+  Unknown = 'unKnown',
+  Failed = 'failed',
+}
+
+export enum CodeStatus {
+  Unknown = 'unknown',
+  Sending = 'sending', // Код отправляется
+  Sent = 'sent', // Код успешно отправлен
+  Verifying = 'verifying', // Код проверяется
+  Verified = 'verified', // Код успешно проверен
+  Failed = 'failed', // Ошибка
+}
+
+export enum TaskStatus {
+  ToDo = 'toDo',
+  InProgress = 'inProgress',
+  Done = 'done'
+}
+
+export enum APIRoute {
+  SendCodeApi = '/auth/code/send',
+  VerifyCodeApi = '/auth/code/verify',
+  AuthSigninApi = '/auth/signin',
+  AuthRefreshApi = '/auth/refresh',
+  ProjectCreateApi = '/project',
+  TagCreateApi = '/tag',
+  TaskCreateApi = '/task',
+}
+
+export enum NameSpace {
+  Auth = 'auth',
+  NewTask = 'newTask',
+  TimeTrackerTask = 'timeTrackerTask',
+  BoardsAgile = 'boardsAgile',
+  EpicStory = '/epicStory/:id',
+  Story = '/story/:id',
+  Project = '/project/:id',
+  Task = '/task/:id',
 }

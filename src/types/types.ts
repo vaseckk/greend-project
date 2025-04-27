@@ -35,6 +35,12 @@ export interface UserData {
   telegramId: string;
 }
 
+export interface UserNameData {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
 //--- STATE ---//
 
 export interface AuthState {
@@ -56,12 +62,28 @@ export interface CreateProjectData {
   tags?: CreateTag[];
 }
 
-export interface ProjectData {
+export interface ProjectAllData {
   id: string;
   name: string;
   description: string;
   headId: string;
 }
+
+export interface ProjectsData extends ProjectAllData {
+  tags?: CreateTag[];
+  users: UserNameData[];
+}
+
+export interface UpdateProjectRequest {
+  name: string;
+  description: string;
+  headId?: string;
+}
+
+export interface UpdateProjectResponse {
+  id: string;
+}
+
 
 //--- TAGS ---//
 
@@ -94,7 +116,43 @@ export interface TimeEstimationData {
   amount: number;
 }
 
-export type TaskType = 'Epic Story' | 'Story' | 'Задача';
+export type TaskType = 'DEFECT' | 'STORY' | 'EPIC' | 'SUBTASK';
 
+export type Statuses = 'OPEN' | 'IN_PROGRESS' | 'REVIEW' | 'RESOLVED' | 'QA_READY' | 'IN_QA' | 'CLOSED';
 
 export type PriorityType = 'BLOCKER' | 'CRITICAL' | 'MAJOR' | 'MINOR' | 'TRIVIAL';
+
+//--- FILTER ---//
+
+export interface PayloadData {
+  nameFragment: string;
+  statuses: Statuses[];
+  types: TaskType[];
+  priorities: PriorityType[];
+  storyPoints: number[];
+  assigneeIds: string[];
+  reviewerIds: string[];
+  creatorIds: string[];
+  tagsIds: string[];
+}
+
+export interface FilterData {
+  payload: PayloadData[];
+  name: string;
+  id?: string;
+  projectId?: string;
+}
+
+export interface UpdateFilterResponse {
+  id: string;
+}
+
+export type UpdateFilterRequest = FilterData;
+
+//--- USER_PROJECTS_CONTROLLER ---//
+
+export interface UserProjectsControllerData {
+  userId: string;
+  projectId: string;
+  permissionCode: string;
+}

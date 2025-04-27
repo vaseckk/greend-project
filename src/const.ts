@@ -67,8 +67,12 @@ export enum APIRoute {
   AuthSigninApi = '/auth/signin',
   AuthRefreshApi = '/auth/refresh',
   ProjectCreateApi = '/project',
+  ProjectsAllApi = '/project/all',
   TagCreateApi = '/tag',
   TaskCreateApi = '/task',
+  FilterCreate = '/filter',
+  FilterAllApi = '/filter/all',
+  AddUserInProjectApi = '/users-projects',
 }
 
 export enum NameSpace {

@@ -4,10 +4,10 @@ import {AppDispatch, AppState} from '../types/state.ts';
 import {
   AuthTokens,
   CreateProjectData,
-  CreateTag, CreateTaskData,
-  LoginData, ProjectData,
-  SendCodeData,
-  UserData,
+  CreateTag, CreateTaskData, FilterData,
+  LoginData, ProjectAllData, ProjectsData,
+  SendCodeData, UpdateFilterRequest, UpdateFilterResponse, UpdateProjectRequest, UpdateProjectResponse,
+  UserData, UserProjectsControllerData,
   VerifyCodeData
 } from '../types/types.ts';
 import {dropTokens, saveAccessToken, saveRefreshToken} from '../services/token.ts';
@@ -79,7 +79,7 @@ export const logoutAction = createAppAsyncThunk<void, void>(
 );
 
 
-//--- CREATE PROJECT ---//
+//--- PROJECT ---//
 
 export const createProject = createAppAsyncThunk<CreateProjectData, Omit<CreateProjectData, 'id'>>(
   'project/create',
@@ -89,10 +89,26 @@ export const createProject = createAppAsyncThunk<CreateProjectData, Omit<CreateP
   }
 );
 
-export const fetchProjectsAction = createAppAsyncThunk<ProjectData[]>(
+export const fetchProjectsAction = createAppAsyncThunk<ProjectAllData[], string>(
   'project/fetchProjects',
   async (projectId, {extra: api}) => {
-    const {data} = await api.get<ProjectData[]>(`${APIRoute.TagCreateApi}/${projectId}`);
+    const {data} = await api.get<ProjectAllData[]>(`${APIRoute.TagCreateApi}/${projectId}`);
+    return data;
+  }
+);
+
+export const updateProject = createAppAsyncThunk<UpdateProjectResponse, {id: string; data: UpdateProjectRequest}>(
+  'project/update',
+  async ({ id, data }, {extra: api}) => {
+    const responce = await api.put<UpdateProjectResponse>(`${APIRoute.TagCreateApi}/${id}`, data);
+    return responce.data;
+  }
+);
+
+export const getAllProject = createAppAsyncThunk<ProjectsData, undefined>(
+  'project/getAllProject',
+  async (_arg, {extra: api}) => {
+    const { data } = await api.get<ProjectsData>(APIRoute.ProjectsAllApi);
     return data;
   }
 );
@@ -115,6 +131,48 @@ export const deleteTag = createAppAsyncThunk<string, string>(
   }
 );
 
+//--- FILTER ---//
+
+export const createFilter = createAppAsyncThunk<FilterData, Omit<FilterData, 'id'>> (
+  'filter/createFilter',
+  async (filterData, {extra: api}) => {
+    const { data } = await api.post<FilterData>(APIRoute.FilterCreate, filterData);
+    return data;
+  }
+);
+
+export const updateFilter = createAppAsyncThunk<UpdateFilterResponse, {id: string; data: UpdateFilterRequest}> (
+  'filter/updateFilter',
+  async ({id, data}, {extra: api}) => {
+    const responce = await api.put<UpdateFilterResponse>(`${APIRoute.FilterCreate}/${id}`, data);
+    return responce.data;
+  }
+);
+
+export const GetFillerAll = createAppAsyncThunk<FilterData, undefined>(
+  'filter/getFilterAll',
+  async (_arg, {extra: api}) => {
+    const { data } = await api.get<FilterData>(APIRoute.ProjectsAllApi);
+    return data;
+  }
+);
+
+export const GetFilter = createAppAsyncThunk<FilterData[], string>(
+  'project/fetchProjects',
+  async (projectId, {extra: api}) => {
+    const {data} = await api.get<FilterData[]>(`${APIRoute.TagCreateApi}/${projectId}`);
+    return data;
+  }
+);
+
+export const deleteFilter = createAppAsyncThunk<string, string>(
+  'project/deleteTag',
+  async (id, {extra: api}) => {
+    await api.delete(`${APIRoute.FilterCreate}/${id}`);
+    return id;
+  }
+);
+
 //--- TASK ---//
 
 export const createTask = createAppAsyncThunk<CreateTaskData, Omit<CreateTaskData, 'id'>>(
@@ -122,5 +180,23 @@ export const createTask = createAppAsyncThunk<CreateTaskData, Omit<CreateTaskDat
   async (taskData, {extra: api}) => {
     const {data} = await api.post<CreateTaskData>(APIRoute.TaskCreateApi, taskData);
     return data;
+  }
+);
+
+//-- ADD USER IN PROJECTS ---//
+
+export const AddUserInProjects = createAppAsyncThunk<UserProjectsControllerData, Omit<UserProjectsControllerData, 'id'>>(
+  'project/addUserInProjects',
+  async (userProjectsControllerData, {extra: api}) => {
+    const { data } = await api.post<UserProjectsControllerData>(APIRoute.AddUserInProjectApi, userProjectsControllerData);
+    return data;
+  }
+);
+
+export const deleteUserInProjects = createAppAsyncThunk<string, string>(
+  'project/deleteTag',
+  async (id, {extra: api}) => {
+    await api.delete(`${APIRoute.AddUserInProjectApi}/${id}`);
+    return id;
   }
 );

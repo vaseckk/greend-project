@@ -13,7 +13,9 @@ export const StatusCodeMapping: Record<number, boolean> = {
 };
 
 export enum AppRoute {
-  NewTask = '/newTask',
+  NewType = '/newType',
+  CreateTask = '/newType/createTask',
+  CreateProject = '/newType/createProject',
   BoardsAgile = '/boardsAgile',
   TimeTrackerTask = '/timeTrackerTask',
   EpicStory = '/epicStory/:id',
@@ -55,10 +57,31 @@ export enum CodeStatus {
   Failed = 'failed', // Ошибка
 }
 
+export enum CreationStatus {
+  Idle = 'Idle',
+  Creating = 'creating',
+  Created = 'created',
+  Failed= 'failed',
+}
+
+export enum AddUserStatus {
+  NotAdded = 'notAdded',
+  BeingAdding = 'beingAdding',
+  BeenAdded = 'beenAdded',
+  Failed = 'failed',
+}
+
 export enum TaskStatus {
   ToDo = 'toDo',
   InProgress = 'inProgress',
   Done = 'done'
+}
+
+export enum GetAllUser {
+  NotFound = 'notFound',
+  Loading = 'loading',
+  Found = 'found',
+  Failed = 'failed'
 }
 
 export enum APIRoute {
@@ -70,18 +93,23 @@ export enum APIRoute {
   ProjectsAllApi = '/project/all',
   TagCreateApi = '/tag',
   TaskCreateApi = '/task',
+  TaskFindByFilter = '/task/find-by-filter',
   FilterCreate = '/filter',
   FilterAllApi = '/filter/all',
   AddUserInProjectApi = '/users-projects',
+  UserInfoApi = '/user/current'
 }
 
 export enum NameSpace {
   Auth = 'auth',
   NewTask = 'newTask',
+  AddUserInProject = 'addUserInProject',
+  AllUsers = 'allUsers',
   TimeTrackerTask = 'timeTrackerTask',
   BoardsAgile = 'boardsAgile',
   EpicStory = '/epicStory/:id',
   Story = '/story/:id',
-  Project = '/project/:id',
+  Project = 'project',
   Task = '/task/:id',
+  Tags = 'tags'
 }

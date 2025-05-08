@@ -2,23 +2,34 @@ import {ChangeEvent, useEffect, useState} from 'react';
 import './tags.scss';
 import useDropdownButton from '../../../hooks/use-dropdown-button/use-dropdown-button.ts';
 import {MAX_LENGTH_SHOW_TAGS, MIN_LENGTH_SHOW_TAGS} from '../../../const.ts';
+import {useAppDispatch, useAppSelector} from '../../../hooks';
+import {getTags} from '../../../store/tags-slice/tags-selector.ts';
+import {createTag, deleteTag} from '../../../store/api-actions.ts';
+import {getCurrentProject} from '../../../store/project-slice/project-selector.ts';
 
 function Tags(): JSX.Element {
+  const dispatch = useAppDispatch();
+  const serverTags = useAppSelector(getTags);
+  const currentProject = useAppSelector(getCurrentProject);
+
   const dropdownTags = useDropdownButton();
 
   const [isFormVisible, setIsFormVisible] = useState(false); // Видимость формы
-  const [tags, setTags] = useState<string[]>(() => {
-    const savedTags = typeof window !== 'undefined' ? localStorage.getItem('tags') : null;
-    return savedTags ? JSON.parse(savedTags) as string[] : [];
-  }); // Список тегов
   const [inputValue, setInputValue] = useState(''); // Текст в поле ввода
   const [existingTags] = useState<string[]>(['react', 'hooks', 'typescript', 'hi']);
-  const visibleLengthTags = tags.length > MAX_LENGTH_SHOW_TAGS;
+  const visibleLengthTags = serverTags.length > MAX_LENGTH_SHOW_TAGS;
   const [showAllTags, setShowAllTags] = useState(false);
 
   const handleAddTag = () => {
-    if (inputValue && !tags.includes(inputValue)) {
-      setTags([...tags, inputValue]);
+    if (!currentProject) {
+      return;
+    }
+
+    if (inputValue.trim() && !serverTags.some((tag) => tag.name === inputValue)) {
+      dispatch(createTag({
+        name: inputValue,
+        projectId: currentProject.id // Используем ID текущего проекта
+      }));
       setInputValue('');
     }
   };
@@ -27,12 +38,20 @@ function Tags(): JSX.Element {
     setInputValue(tag);
   };
 
-  useEffect(() => {
-    localStorage.setItem('tags', JSON.stringify(tags));
-  }, [tags]);
+  const handleRemoveTag = (tagId: string) => {
+    dispatch(deleteTag(tagId));
+  };
 
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove));
+  useEffect(() => {
+    if (serverTags.length <= MAX_LENGTH_SHOW_TAGS) {
+      setShowAllTags(false);
+    }
+  }, [serverTags.length]);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const filteredValue = value.replace(/[^a-zA-Z_-]/g, '');
+    setInputValue(filteredValue);
   };
 
   useEffect(() => {
@@ -45,25 +64,12 @@ function Tags(): JSX.Element {
     };
 
     const inputElement = document.querySelector('.tags__input');
-    inputElement?.addEventListener('keydown', handleKeyPress);
+    inputElement?.addEventListener('keydown', handleKeyPress as EventListener);
 
     return () => {
-      inputElement?.removeEventListener('keydown', handleKeyPress);
+      inputElement?.removeEventListener('keydown', handleKeyPress as EventListener);
     };
   }, [inputValue, handleAddTag]);
-
-  useEffect(() => {
-    if (tags.length <= MAX_LENGTH_SHOW_TAGS) {
-      setShowAllTags(false); // Сбрасываем флаг, если тегов меньше или равно 4
-    }
-  }, [tags.length]);
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Оставляем только английские буквы (большие и маленькие)
-    const filteredValue = value.replace(/[^a-zA-Z_-]/g, '');
-    setInputValue(filteredValue);
-  };
 
   return (
     <div className="tags-content">
@@ -111,23 +117,23 @@ function Tags(): JSX.Element {
 
         <div className='tags_main'>
           <div className={`tags_show_tags ${showAllTags ? 'showAllTags' : ''}`}>
-            {tags.slice(MIN_LENGTH_SHOW_TAGS, MAX_LENGTH_SHOW_TAGS).map((tag) => (
-              <div key={tag}
+            {serverTags.slice(MIN_LENGTH_SHOW_TAGS, MAX_LENGTH_SHOW_TAGS).map((tag) => (
+              <div key={tag.id}
                 className={`project_details_value tags-list ${isFormVisible ? 'shifted ' : ''} ${showAllTags ? 'shiftedAllTags' : ''}`}
               >
                 <div className='tags-list_value'>
-                  {tag}
+                  {tag.name}
                 </div>
-                {isFormVisible ? <img src="../img/close.png" alt="" onClick={() => handleRemoveTag(tag)}/> : ''}
+                {isFormVisible ? <img src="../img/close.png" alt="" onClick={() => handleRemoveTag(tag.id)}/> : ''}
               </div>
             ))}
 
-            {showAllTags && tags.slice(MAX_LENGTH_SHOW_TAGS).map((tag) => (
-              <div key={tag}
+            {showAllTags && serverTags.slice(MAX_LENGTH_SHOW_TAGS).map((tag) => (
+              <div key={tag.id}
                 className={`project_details_value tags-list ${isFormVisible ? 'shifted' : ''} tags-list-additional ${showAllTags ? 'shiftedAllTags' : ''}`}
               >
-                <div className='tags-list_value'>{tag}</div>
-                {isFormVisible && <img src="../img/close.png" alt="" onClick={() => handleRemoveTag(tag)}/>}
+                <div className='tags-list_value'>{tag.name}</div>
+                {isFormVisible && <img src="../img/close.png" alt="" onClick={() => handleRemoveTag(tag.id)}/>}
               </div>
             ))}
 

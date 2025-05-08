@@ -1,4 +1,4 @@
-import {AuthorizationStatus, CodeStatus} from '../const.ts';
+import {AddUserStatus, AuthorizationStatus, CodeStatus, CreationStatus, GetAllUser} from '../const.ts';
 
 //--- ERROR ---//
 export interface ErrorMesageType {
@@ -41,16 +41,6 @@ export interface UserNameData {
   lastName: string;
 }
 
-//--- STATE ---//
-
-export interface AuthState {
-  user: UserData | null;
-  tokens: AuthTokens | null;
-  authStatus: AuthorizationStatus;
-  codeStatus: CodeStatus;
-  error: string | null;
-}
-
 //--- PROJECT ---//
 
 export interface CreateProjectData {
@@ -84,7 +74,6 @@ export interface UpdateProjectResponse {
   id: string;
 }
 
-
 //--- TAGS ---//
 
 export interface CreateTag {
@@ -114,6 +103,88 @@ export interface CreateTaskData {
 export interface TimeEstimationData {
   timeUnit: 'NANOSECONDS' | 'MICROSECONDS' | 'MILLISECONDS' | 'SECONDS' | 'MINUTES' | 'HOURS' | 'DAYS';
   amount: number;
+}
+
+export interface TaskByFilter {
+  payload: PayloadData;
+  projectId: string;
+}
+
+export interface TaskFindByFilterResponse {
+  simpleId: string;
+  name: string;
+  type: CodeValue;
+  status: CodeValue;
+  priority: CodeValue;
+  assigneeFullName: string;
+  creatorFullName: string;
+}
+
+export interface TaskData {
+  simpleId: string;
+  name: string;
+  description: string;
+  type: CodeValue;
+  priority: CodeValue;
+  storyPoints: number;
+  assignee: UserNameData;
+  reviewer: UserNameData;
+  creator: UserNameData;
+  dueDate: string;
+  timeEstimation: TimeEstimationData;
+  timeUsed: TimeEstimationData;
+  timeRemaining: TimeEstimationData;
+  tags: [
+    {
+      id: string;
+      name: string;
+    }
+  ];
+  status: CodeValue;
+  sprint: {
+    id: string;
+    name: string;
+  };
+  tester: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+  storyTask: {
+    simpleId: string;
+    name: string;
+  };
+}
+
+export interface UpdateTaskRequest {
+  name: string;
+  description: string;
+  type: TaskType;
+  priority: PriorityType;
+  assigneeId: string;
+  reviewerId: string;
+  testerId?: string;
+  sprintId?: string;
+  dueDate?: string;
+  timeEstimation: TimeEstimationData;
+  tagIds?: string[];
+}
+
+export interface UpdateTaskResponse {
+  id: string;
+}
+
+export interface UpdateTaskStatusRequest {
+  status: Statuses;
+}
+
+export interface UpdateTaskStatusResponse {
+  id: string;
+}
+
+export interface CodeValue {
+  code: string;
+  value: string;
 }
 
 export type TaskType = 'DEFECT' | 'STORY' | 'EPIC' | 'SUBTASK';
@@ -155,4 +226,58 @@ export interface UserProjectsControllerData {
   userId: string;
   projectId: string;
   permissionCode: string;
+}
+
+//--- NOTIFICATIONS ---//
+
+export interface NotificationsData {
+  viewed: boolean;
+  recipientTelegramId: string;
+  creationDateTime: number;
+  text: string;
+}
+
+//--- STATE ---//
+
+export interface AuthState {
+  user: UserData | null;
+  tokens: AuthTokens | null;
+  authStatus: AuthorizationStatus;
+  codeStatus: CodeStatus;
+  error: string | null;
+}
+
+export interface ProjectState {
+  projects: CreateProjectData[];
+  projectsAll: ProjectsData | null;
+  projectDetails: ProjectAllData | null;
+  currentProject: CreateProjectData | null;
+  status: CreationStatus;
+  error: string | null;
+  loading: boolean;
+}
+
+export interface TaskStatus {
+
+}
+
+export interface TagsState {
+  tags: CreateTag[];
+  status: CreationStatus;
+  error: string | null;
+  loading: boolean;
+}
+
+export interface AddUserInProjectState {
+  users: UserProjectsControllerData[];
+  status: AddUserStatus;
+  error: string | null;
+  loading: boolean;
+}
+
+export interface UsersState {
+  list: UserData[];
+  loading: boolean;
+  error: string | null;
+  status: GetAllUser;
 }

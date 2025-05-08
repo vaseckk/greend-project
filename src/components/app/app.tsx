@@ -27,7 +27,7 @@ function App(): JSX.Element {
             }
           />
           <Route
-            path={AppRoute.NewTask}
+            path={AppRoute.NewType}
             element={
               <PrivateRoute authorizationStatus={authorizationStatus}>
                 <NewTask />

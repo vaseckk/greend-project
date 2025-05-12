@@ -160,25 +160,8 @@ function ExampleSidebar() {
         variants={buttonFooter}
       >
         <div className='sidebar-wrapper-footer'>
-          <motion.button className='sidebar-button_setting' variants={buttonFooterBlock}>
-            <span className='sidebar-button-container_setting' >
-              <AnimatePresence>
-                {isOpen && (
-                  <motion.div
-                    variants={additionalTextNavigation}
-                    initial="closed"
-                    animate="open"
-                    exit="closed"
-                  >
-                    <p>Настроить</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <img src="/img/linear_scale.png" alt="" />
-            </span>
-          </motion.button>
           <motion.button className='sidebar-button_new_task' variants={buttonFooterBlock}>
-            <Link to={AppRoute.NewTask} className='sidebar-button-container_new_task'>
+            <Link to={AppRoute.NewProject} className='sidebar-button-container_new_task'>
               <AnimatePresence>
                 {isOpen && (
                   <motion.div
@@ -187,7 +170,7 @@ function ExampleSidebar() {
                     animate="open"
                     exit="closed"
                   >
-                    <p>Новая задача</p>
+                    <p>Новый проект</p>
                   </motion.div>
                 )}
               </AnimatePresence>

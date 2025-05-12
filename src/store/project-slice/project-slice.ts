@@ -1,11 +1,11 @@
 import {CreateProjectData, ProjectState} from '../../types/types.ts';
 import {CreationStatus, NameSpace} from '../../const.ts';
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {createProject, fetchProjectsAction, getAllProject, updateProject} from '../api-actions.ts';
 
 const initialState: ProjectState = {
-  projects: [],
-  projectsAll: null,
+  projects: null,
+  projectsAll: [],
   projectDetails: null,
   currentProject: null,
   status: CreationStatus.Idle,
@@ -21,8 +21,12 @@ const projectSlice = createSlice({
       state.status = CreationStatus.Idle;
       state.error = null;
     },
-    setCurrentProject: (state, action: {payload: CreateProjectData | null}) => {
+    setCurrentProject: (state, action: PayloadAction<CreateProjectData | null>) => {
       state.currentProject = action.payload;
+    },
+    clearProjectsData: (state) => {
+      state.projectsAll = [];
+      state.projectDetails = null;
     }
   },
   extraReducers: (builder) => {
@@ -36,7 +40,6 @@ const projectSlice = createSlice({
       .addCase(createProject.fulfilled, (state, action) => {
         state.status = CreationStatus.Created;
         state.currentProject = action.payload;
-        state.projects.push(action.payload);
         state.loading = false;
       })
       .addCase(createProject.rejected, (state, action) => {
@@ -51,7 +54,7 @@ const projectSlice = createSlice({
         state.error = null;
       })
       .addCase(getAllProject.fulfilled, (state, action) => {
-        state.projectsAll = action.payload;
+        state.projectsAll = [action.payload]; // Просто сохраняем полученные данные
         state.loading = false;
       })
       .addCase(getAllProject.rejected, (state, action) => {
@@ -59,13 +62,13 @@ const projectSlice = createSlice({
         state.loading = false;
       })
 
-      // Получение проектов по ID
+      // Получение проекта по ID
       .addCase(fetchProjectsAction.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchProjectsAction.fulfilled, (state, action) => {
-        state.projectDetails = action.payload[0]; // Предполагаем, что возвращается массив
+        state.projectDetails = action.payload[0]; // Берем первый элемент массива
         state.loading = false;
       })
       .addCase(fetchProjectsAction.rejected, (state, action) => {
@@ -79,14 +82,8 @@ const projectSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateProject.fulfilled, (state, action) => {
+      .addCase(updateProject.fulfilled, (state) => {
         state.status = CreationStatus.Created;
-        if (state.currentProject) {
-          state.currentProject = {
-            ...state.currentProject,
-            ...action.payload
-          };
-        }
         state.loading = false;
       })
       .addCase(updateProject.rejected, (state, action) => {
@@ -97,6 +94,6 @@ const projectSlice = createSlice({
   }
 });
 
-
+export const { resetProjectStatus, setCurrentProject, clearProjectsData } = projectSlice.actions;
 export const projectReducer = projectSlice.reducer;
 export default projectSlice.reducer;

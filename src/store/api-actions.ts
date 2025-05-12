@@ -17,7 +17,7 @@ import {
   UpdateFilterResponse,
   UpdateProjectRequest,
   UpdateProjectResponse, UpdateTaskRequest, UpdateTaskResponse, UpdateTaskStatusRequest, UpdateTaskStatusResponse,
-  UserData,
+  UserData, UserNameData,
   UserProjectsControllerData,
   VerifyCodeData
 } from '../types/types.ts';
@@ -102,7 +102,7 @@ export const createProject = createAppAsyncThunk<CreateProjectData, Omit<CreateP
 export const fetchProjectsAction = createAppAsyncThunk<ProjectAllData[], string>(
   'project/fetchProjects',
   async (projectId, {extra: api}) => {
-    const {data} = await api.get<ProjectAllData[]>(`${APIRoute.TagCreateApi}/${projectId}`);
+    const {data} = await api.get<ProjectAllData[]>(`${APIRoute.ProjectsAllApi}/${projectId}`);
     return data;
   }
 );
@@ -110,7 +110,7 @@ export const fetchProjectsAction = createAppAsyncThunk<ProjectAllData[], string>
 export const updateProject = createAppAsyncThunk<UpdateProjectResponse, {id: string; data: UpdateProjectRequest}>(
   'project/update',
   async ({ id, data }, {extra: api}) => {
-    const response = await api.put<UpdateProjectResponse>(`${APIRoute.TagCreateApi}/${id}`, data);
+    const response = await api.put<UpdateProjectResponse>(`${APIRoute.ProjectCreateApi}/${id}`, data);
     return response.data;
   }
 );
@@ -251,10 +251,18 @@ export const deleteUserInProjects = createAppAsyncThunk<string, string>(
 
 //--- GET CURRENT USER INFO ---//
 
-export const getUserInfo = createAppAsyncThunk<UserData[], undefined>(
+export const getAllUsers = createAppAsyncThunk<UserData[], undefined>(
   'user/getUserInfo',
   async (_arg, {extra: api}) => {
     const {data} = await api.get<UserData[]>(APIRoute.UserInfoApi);
+    return data;
+  }
+);
+
+export const getUserInfo = createAppAsyncThunk<UserNameData, undefined>(
+  'user/getUserInfo',
+  async (_arg, { extra: api }) => {
+    const { data } = await api.get<UserNameData>(APIRoute.UserInfoApi);
     return data;
   }
 );

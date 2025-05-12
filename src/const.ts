@@ -13,9 +13,8 @@ export const StatusCodeMapping: Record<number, boolean> = {
 };
 
 export enum AppRoute {
-  NewType = '/newType',
-  CreateTask = '/newType/createTask',
-  CreateProject = '/newType/createProject',
+  NewTask = '/newTask',
+  NewProject = '/newProject',
   BoardsAgile = '/boardsAgile',
   TimeTrackerTask = '/timeTrackerTask',
   EpicStory = '/epicStory/:id',
@@ -107,9 +106,9 @@ export enum NameSpace {
   AllUsers = 'allUsers',
   TimeTrackerTask = 'timeTrackerTask',
   BoardsAgile = 'boardsAgile',
-  EpicStory = '/epicStory/:id',
-  Story = '/story/:id',
+  EpicStory = 'epicStory',
+  Story = 'story',
   Project = 'project',
-  Task = '/task/:id',
+  Task = 'task',
   Tags = 'tags'
 }

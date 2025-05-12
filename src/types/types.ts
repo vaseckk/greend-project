@@ -49,7 +49,6 @@ export interface CreateProjectData {
   description: string;
   key: string;
   headId: string;
-  tags?: CreateTag[];
 }
 
 export interface ProjectAllData {
@@ -248,8 +247,8 @@ export interface AuthState {
 }
 
 export interface ProjectState {
-  projects: CreateProjectData[];
-  projectsAll: ProjectsData | null;
+  projects: CreateProjectData | null;
+  projectsAll: ProjectsData[];
   projectDetails: ProjectAllData | null;
   currentProject: CreateProjectData | null;
   status: CreationStatus;
@@ -258,25 +257,32 @@ export interface ProjectState {
 }
 
 export interface TaskStatus {
-
+  createTask: CreateTaskData | null;
+  taskFindByFilter: TaskFindByFilterResponse | null;
+  taskDetails: TaskData | null;
+  updateTask: UpdateTaskResponse | null;
+  updateTaskStatus: UpdateTaskStatusResponse | null;
+  status: CreationStatus;
+  error: string | null;
+  loading: boolean;
 }
 
 export interface TagsState {
-  tags: CreateTag[];
+  tags: CreateTag | null;
   status: CreationStatus;
   error: string | null;
   loading: boolean;
 }
 
 export interface AddUserInProjectState {
-  users: UserProjectsControllerData[];
+  users: UserProjectsControllerData | null;
   status: AddUserStatus;
   error: string | null;
   loading: boolean;
 }
 
 export interface UsersState {
-  list: UserData[];
+  user: UserNameData | null;
   loading: boolean;
   error: string | null;
   status: GetAllUser;

@@ -1,10 +1,10 @@
-import {UsersState} from '../../types/types.ts';
+import {UserNameData, UsersState} from '../../types/types.ts';
 import {GetAllUser, NameSpace} from '../../const.ts';
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {getUserInfo} from '../api-actions.ts';
 
 const initialState: UsersState = {
-  list: [],
+  user: null,
   error: null,
   loading: false,
   status: GetAllUser.NotFound,
@@ -21,8 +21,8 @@ const usersSlice = createSlice({
         state.error = null;
         state.status = GetAllUser.Loading;
       })
-      .addCase(getUserInfo.fulfilled, (state, action) => {
-        state.list = action.payload;
+      .addCase(getUserInfo.fulfilled, (state, action: PayloadAction<UserNameData>) => {
+        state.user = action.payload;
         state.loading = false;
         state.status = GetAllUser.Found;
       })

@@ -14,10 +14,7 @@ export const createApi = (): AxiosInstance => {
     timeout: REQUEST_TIMEOUT,
   });
 
-  // Функция для добавления Bearer, если его нет
-  const ensureBearer = (token: string): string => {
-    return token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-  };
+  const ensureBearer = (token: string): string => token.startsWith('Bearer ') ? token : `Bearer ${token}`;
 
   // Request interceptor
   api.interceptors.request.use(
@@ -26,14 +23,13 @@ export const createApi = (): AxiosInstance => {
       const tokenWithBearer = ensureBearer(token);
 
       if (token && config.headers) {
-        config.headers['Authorization-Telegram'] = tokenWithBearer; // Отправляем токен с Bearer
+        config.headers['Authorization-Telegram'] = tokenWithBearer;
       }
 
       return config;
     }
   );
 
-  // Response interceptor
   api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError<ErrorMesageType>) => {
@@ -42,7 +38,6 @@ export const createApi = (): AxiosInstance => {
         toast.warn(detailMessage.message);
       }
 
-      // Обработка 401 ошибки
       if (error.response?.status === 401) {
         const originalRequest = error.config;
 
@@ -55,16 +50,13 @@ export const createApi = (): AxiosInstance => {
               throw new Error('No refresh token');
             }
 
-            // Отправляем refreshToken с Bearer
             const { data } = await api.post<AuthTokens>('/auth/refresh', {
               refreshToken: refreshTokenWithBearer
             });
 
-            // Сохраняем новые токены (как есть, предполагая что они могут быть с Bearer)
             saveAccessToken(data.accessToken);
             saveRefreshToken(data.refreshToken);
 
-            // Обновляем заголовок для повторного запроса
             if (originalRequest.headers) {
               originalRequest.headers['x-token'] = ensureBearer(data.accessToken);
             }

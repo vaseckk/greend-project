@@ -9,7 +9,11 @@ import {useAppSelector} from '../../hooks';
 import {getAuthStatus} from '../../store/auth-slice/auth-selector.ts';
 import PrivateRoute from '../private-route/private-route.tsx';
 import NewProject from '../../pages/different-components/new-project/new-project.tsx';
-import NewTask from '../../pages/different-components/new-task/new-task.tsx';
+import NewTaskEpic from '../../pages/different-components/new-task-epic/new-task-epic.tsx';
+import Project from '../../pages/different-components/project/project.tsx';
+import NewSprint from '../../pages/different-components/new-sprint/new-sprint.tsx';
+import EpicStory from '../../pages/different-components/epic-story/epic-story.tsx';
+import AllProjects from '../../pages/different-components/all-projects/all-projects.tsx';
 
 function App(): JSX.Element {
   const authorizationStatus = useAppSelector(getAuthStatus);
@@ -36,12 +40,40 @@ function App(): JSX.Element {
             }
           />
           <Route
-            path={AppRoute.NewTask}
+            path={`${AppRoute.NewTask}/:id`}
             element={
               <PrivateRoute authorizationStatus={authorizationStatus}>
-                <NewTask />
+                <NewTaskEpic />
               </PrivateRoute>
             }
+          />
+          <Route
+            path={`${AppRoute.Epic}/:id`}
+            element={
+              <PrivateRoute authorizationStatus={authorizationStatus}>
+                <EpicStory />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={`${AppRoute.Project}`}
+            element={
+              <PrivateRoute authorizationStatus={authorizationStatus}>
+                <Project />
+              </PrivateRoute>
+            }
+          />
+          <Route path={AppRoute.NewSprint} element={
+            <PrivateRoute authorizationStatus={authorizationStatus}>
+              <NewSprint />
+            </PrivateRoute>
+          }
+          />
+          <Route path={AppRoute.AllProjects} element={
+            <PrivateRoute authorizationStatus={authorizationStatus}>
+              <AllProjects />
+            </PrivateRoute>
+          }
           />
           <Route
             path={AppRoute.BoardsAgile}

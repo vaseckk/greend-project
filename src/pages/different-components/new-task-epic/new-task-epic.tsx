@@ -1,0 +1,290 @@
+import {Helmet} from 'react-helmet-async';
+import Sidebar from '../../pages-components/sidebar/sidebar.tsx';
+import Header from '../../pages-components/header/header.tsx';
+import SearchFor from '../../pages-components/search-for/search-for.tsx';
+import Tags from '../../pages-components/tags/tags.tsx';
+import {PriorityType, TaskType, StoryPoint, TimeEstimationData} from '../../../types/types.ts';
+import {useAppDispatch, useAppSelector} from '../../../hooks';
+import {generatePath, useNavigate} from 'react-router-dom';
+import {getProjectInfo} from '../../../store/project-slice/project-selector.ts';
+import {ChangeEvent, FormEvent, useEffect, useState} from 'react';
+import {createTask} from '../../../store/api-actions.ts';
+import {ALLOWED_STORY_POINTS, AppRoute, TIME_UNITS} from '../../../const.ts';
+import {useDropdownInput} from '../../../hooks/use-dropdown-input/use-dropdown-input.ts';
+import './new-task-epic.scss';
+import UsersSelectSubtask from '../../pages-components/users-select-subtask/users-select-subtask.tsx';
+
+const PRIORITY_OPTIONS: PriorityType[] = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'TRIVIAL'];
+
+function NewTaskEpic(): JSX.Element {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const dropdownPriority = useDropdownInput(PRIORITY_OPTIONS);
+  const currentProject = useAppSelector(getProjectInfo);
+
+  const [timeEstimations, setTimeEstimations] = useState<TimeEstimationData>(
+    {amount: 0, timeUnit: 'HOURS'}
+  );
+
+  const [EpicData, setEpicData] = useState({
+    name: '',
+    description: '',
+    type: 'EPIC' as TaskType,
+    priority: 'MAJOR' as PriorityType,
+    storyPoints: 1 as StoryPoint,
+    assigneeId: '',
+    reviewerId: '',
+    dueDate: '',
+    projectId: currentProject?.id || '',
+    timeEstimation: {
+      timeUnit: TIME_UNITS[5],
+      amount: 0,
+    },
+  });
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEpicData({
+      ...EpicData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!currentProject?.id) {
+      return;
+    }
+
+    dispatch(createTask(EpicData))
+      .then((action) => {
+        if (createTask.fulfilled.match(action)) {
+          const path = generatePath(`${AppRoute.Epic}/:id`, { id: action.payload.id });
+          navigate(path);
+        }
+      });
+  };
+
+  const handleTimeEstimationChange = (field: keyof TimeEstimationData, value: string | number) => {
+    setTimeEstimations((prev) => ({
+      ...prev,
+      [field]: field === 'amount' ? Number(value) || 0 : value
+    }));
+  };
+
+  useEffect(() => {
+    setEpicData((prev) => ({
+      ...prev,
+      priority: dropdownPriority.inputValue as PriorityType
+    }));
+  }, [dropdownPriority.inputValue]);
+
+  useEffect(() => {
+    setEpicData((prev) => ({
+      ...prev,
+      timeEstimation: {
+        amount: Number(timeEstimations.amount) || 0,
+        timeUnit: timeEstimations.timeUnit === 'HOURS'
+          ? timeEstimations.timeUnit
+          : TIME_UNITS[5]
+      }
+    }));
+  }, [timeEstimations]);
+  return (
+    <div className="page__main">
+      <Helmet>
+        <title>Greend: Создание Epic</title>
+      </Helmet>
+      <div className="page__main__parametres">
+        <article className="page__main-sideber">
+          <Sidebar/>
+        </article>
+        <div className="page__main-container">
+          <header>
+            <Header/>
+          </header>
+
+          <main className="page__main-content">
+            <div className="search-container">
+              <SearchFor/>
+            </div>
+
+            <div className="task">
+              <form onSubmit={handleSubmit} className='task__form'>
+                <section className="task-section">
+                  <section className="task-basic">
+                    <article className="task-basic_title">
+                      <div className="task-basic_title_container">
+                        <h1 className="task-basic_title_name">
+                          Создание новой Epic в проекте {currentProject?.name}
+                        </h1>
+                      </div>
+                    </article>
+
+                    <article className="task-basic_name_type">
+                      <div className="task-basic_name_container">
+                        <p>Наименование</p>
+                        <div className="task-basic_name">
+                          <input
+                            name="name"
+                            placeholder='Впишите название задачи'
+                            value={EpicData.name}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </article>
+
+                    <article className="task-basic_time-controller">
+                      <div className="task-basic_time-end_container">
+                        <p>Дата окончания</p>
+                        <div className="task-basic_time-end">
+                          <input
+                            type="date"
+                            name="dueDate"
+                            value={EpicData.dueDate}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                      </div>
+
+                      <article className="task-basic_name_container">
+                        <p>Временная оценка</p>
+                        <div className="time-estimation__container">
+                          <div className="time-estimation__item">
+                            <div className="time-estimation__input-container">
+                              <input
+                                type="number"
+                                placeholder="Количество"
+                                value={timeEstimations.amount}
+                                onChange={(e) => handleTimeEstimationChange('amount', e.target.value)}
+                                min="0"
+                                step="1"
+                              />
+
+                              <select
+                                value={timeEstimations.timeUnit}
+                                onChange={(e) => handleTimeEstimationChange('timeUnit', e.target.value)}
+                              >
+                                {TIME_UNITS.map((unit) => (
+                                  <option key={unit} value={unit}>
+                                    {unit.toLowerCase()}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    </article>
+
+                    {/*
+                    <article className="task-basic_tags">
+                      <div className="task-basic_tags_container">
+                        <Tags/>
+                      </div>
+                    </article>
+                    */}
+
+                    <article className="task-basic_type-priority-complexity">
+                      <div className="task-basic_type_container">
+                        <p>Приоритет</p>
+                        <button
+                          type="button"
+                          className="task-basic_type-choose"
+                          onClick={dropdownPriority.toggleDropdown}
+                        >
+                          <input
+                            placeholder="Выберите приоритет"
+                            value={dropdownPriority.inputValue}
+                            onChange={dropdownPriority.handleInputChange}
+                          />
+                          <img src="../img/chevron.png" alt=""/>
+                        </button>
+
+                        {dropdownPriority.isOpen && (
+                          <div className="choose-project">
+                            <ul>
+                              {dropdownPriority.items.map((item) => (
+                                <li
+                                  key={item}
+                                  onClick={() => dropdownPriority.handleItemSelect(item)}
+                                >
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="task-basic_type_container">
+                        <p>Исполнитель</p>
+                        <UsersSelectSubtask
+                          users={currentProject?.users || []}
+                          placeholder="Выберите исполнителя"
+                          onSelect={(userId) => setEpicData({...EpicData, assigneeId: userId})}
+                          initialValue={EpicData.assigneeId}
+                        />
+                      </div>
+
+                      <div className="task-basic_type_container">
+                        <p>Ревьюер</p>
+                        <UsersSelectSubtask
+                          users={currentProject?.users || []}
+                          placeholder="Выберите ревьюера"
+                          onSelect={(userId) => setEpicData({...EpicData, reviewerId: userId})}
+                          initialValue={EpicData.reviewerId}
+                        />
+                      </div>
+
+                    </article>
+
+                    <article className="story-points">
+                      <p>Выберите story points</p>
+                      <div className="story-points_container">
+                        <select
+                          value={EpicData.storyPoints}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value, 10); // Добавляем radix
+                            setEpicData({
+                              ...EpicData,
+                              storyPoints: value as StoryPoint, // Приводим тип
+                            });
+                          }}
+                          required
+                        >
+                          <option value="" disabled>Выберите Story Points</option>
+                          {ALLOWED_STORY_POINTS.map((point) => (
+                            <option key={point} value={point} className='option'>{point}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </article>
+
+                    <article className="task-basic_description">
+                      <p>Описание</p>
+                      <div className="task-basic_description_container">
+                        <textarea
+                          name="description"
+                          value={EpicData.description}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </article>
+
+                    <button type="submit" className='create-task__button'>Создать</button>
+                  </section>
+                </section>
+              </form>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default NewTaskEpic;

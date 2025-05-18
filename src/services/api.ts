@@ -1,6 +1,6 @@
 import axios, {AxiosInstance, AxiosResponse, InternalAxiosRequestConfig, AxiosError} from 'axios';
 import {dropTokens, getAccessToken, getRefreshToken, saveAccessToken, saveRefreshToken} from './token.ts';
-import {StatusCodeMapping, BACKEND_URL, REQUEST_TIMEOUT} from '../const.ts';
+import {StatusCodeMapping, BACKEND_URL, REQUEST_TIMEOUT, TelegramAuthRoute} from '../const.ts';
 import {AuthTokens, ErrorMesageType} from '../types/types.ts';
 import {toast} from 'react-toastify';
 import {logoutAction} from '../store/api-actions.ts';
@@ -23,7 +23,13 @@ export const createApi = (): AxiosInstance => {
       const tokenWithBearer = ensureBearer(token);
 
       if (token && config.headers) {
-        config.headers['Authorization-Telegram'] = tokenWithBearer;
+        // Если запрос входит в список TELEGRAM_AUTH_ROUTES → используем Authorization-Telegram
+        if (TelegramAuthRoute.some((route) => config.url?.includes(route))) {
+          config.headers['Authorization-Telegram'] = tokenWithBearer;
+        } else {
+          // Иначе → стандартный Authorization
+          config.headers['Authorization'] = tokenWithBearer;
+        }
       }
 
       return config;

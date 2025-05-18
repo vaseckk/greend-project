@@ -5,12 +5,12 @@ import {MAX_LENGTH_SHOW_TAGS, MIN_LENGTH_SHOW_TAGS} from '../../../const.ts';
 import {useAppDispatch, useAppSelector} from '../../../hooks';
 import {getTags} from '../../../store/tags-slice/tags-selector.ts';
 import {createTag, deleteTag} from '../../../store/api-actions.ts';
-import {getCurrentProject} from '../../../store/project-slice/project-selector.ts';
+import {getProjectInfo} from '../../../store/project-slice/project-selector.ts';
 
 function Tags(): JSX.Element {
   const dispatch = useAppDispatch();
   const serverTags = useAppSelector(getTags);
-  const currentProject = useAppSelector(getCurrentProject);
+  const currentProject = useAppSelector(getProjectInfo);
 
   const dropdownTags = useDropdownButton();
 

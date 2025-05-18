@@ -4,49 +4,55 @@ import './project.scss';
 import SearchFor from '../../pages-components/search-for/search-for.tsx';
 import useDropdownButton from '../../../hooks/use-dropdown-button/use-dropdown-button.ts';
 import {Helmet} from 'react-helmet-async';
-import {useParams} from 'react-router-dom';
+import {generatePath, useNavigate, useParams} from 'react-router-dom';
 import {useAppDispatch, useAppSelector} from '../../../hooks';
-import {getCurrentProject} from '../../../store/project-slice/project-selector.ts';
-import {useEffect, useState} from 'react';
-import {fetchProjectsAction, getUserInfo} from '../../../store/api-actions.ts';
+import {
+  getHeadUserProject,
+  getProjectInfo,
+  getUsersProject,
+  isLoading
+} from '../../../store/project-slice/project-selector.ts';
+import {useEffect} from 'react';
+import {fetchProjectsAction} from '../../../store/api-actions.ts';
+import {AppRoute} from '../../../const.ts';
 import AddUserModal from '../../pages-components/add-user-modal/add-user-modal.tsx';
-import {getAllUsers} from '../../../store/users-slice/users-selector.ts';
-import {getProjectUsersByProjectId} from '../../../store/add-user-slice/add-user-selector.ts';
 
 function Project(): JSX.Element {
-  const { id } = useParams();
+  const {id} = useParams<{
+    id: string;
+  }>();
   const dispatch = useAppDispatch();
-  const project = useAppSelector(getCurrentProject);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const project = useAppSelector(getProjectInfo);
+  const loading = useAppSelector(isLoading);
+  const headUserProject = useAppSelector(getHeadUserProject);
+  const usersProject = useAppSelector(getUsersProject);
 
-  const projectUsers = useAppSelector(getProjectUsersByProjectId(id || ''));
-
-  const allUsers = useAppSelector(getAllUsers);
-
-  const dropdownDetails = useDropdownButton();
   const dropdownPeople = useDropdownButton();
   const dropdownDescription = useDropdownButton();
+  const dropdownAddUser = useDropdownButton();
 
   useEffect(() => {
     if (id) {
       dispatch(fetchProjectsAction(id));
-      dispatch(getUserInfo());
     }
   }, [id, dispatch]);
 
-  if (!project) {
-    return <div>Загрузка проекта...</div>;
+  const handleAddEpic = () => {
+    if(!project?.id) {
+      return;
+    }
+    const path = generatePath(`${AppRoute.NewTask}/:id`, { id: project.id });
+    navigate(path);
+  };
+
+  if (loading) {
+    return <div className="loading">Загрузка проекта...</div>;
   }
 
-  const getFullUserInfo = (userId: string) => allUsers.find((user) => user.id === userId);
-
-  const handleAddUserClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+  if (!project) {
+    return <div className="error">Проект не найден</div>;
+  }
 
   return (
     <div className="page__main">
@@ -71,53 +77,41 @@ function Project(): JSX.Element {
               <section className="project_information">
                 <div className="project_parametres">
                   <article className="project_title">
-                    <div className="project_title_parametres">
-                      <h1 className="project_title_name">Проект {project.name}:</h1>
-                      <p className="project_title_description">
-                        {project.description || 'Описание отсутствует'}
-                      </p>
-                    </div>
-                    {project.headId && (
+                    <div className="project_title-names">
+                      <div className="project_title_parametres">
+                        <h1 className="project_title_name">Проект:</h1>
+                        <p className="project_title_description">
+                          {project.name || 'Описание отсутствует'}
+                        </p>
+                      </div>
                       <div className="project_title_creator">
-                        <p>Создал(а) {project.headId}</p>
+                        <p>Создал(а) {headUserProject?.lastName} {headUserProject?.firstName}</p>
                       </div>
-                    )}
-                  </article>
-
-                  <article className="project_details" ref={dropdownDetails.dropdownRef}>
-                    <div
-                      className="project_details_title project_details"
-                      onClick={dropdownDetails.toggleDropdown}
-                    >
-                      <img
-                        src="../img/chevron_right.png"
-                        alt=""
-                        style={{
-                          transform: dropdownDetails.isOpen ? 'rotate(90deg)' : 'none',
-                        }}
-                      />
-                      <p>Детали</p>
                     </div>
-                    {dropdownDetails.isOpen && (
-                      <div className="project_details_content project_details">
-                        <ul>
-                          <li>
-                            <p className="project_details_key project_details">Ключ:</p>
-                            <p className="project_details_value project_details">{project.key}</p>
-                          </li>
-                          {project.headId && (
-                            <li>
-                              <p className="project_details_key project_details">
-                                Владелец проекта:
-                              </p>
-                              <p className="project_details_value project_details">
-                                {project.headId}
-                              </p>
-                            </li>
-                          )}
-                        </ul>
+                    <div className="project_title__buttons" ref={dropdownAddUser.dropdownRef}>
+                      <div className="project_add-users_container">
+                        <button className="add-users-in-project" onClick={dropdownAddUser.toggleDropdown}>
+                          <p>Добавить участника в проект</p>
+                          <img
+                            src="../img/chevron_right.png"
+                            alt=""
+                            style={{
+                              transform: dropdownAddUser.isOpen ? 'rotate(90deg)' : 'none',
+                            }}
+                          />
+                        </button>
+
+                        {dropdownAddUser.isOpen && (
+                          <AddUserModal />
+                        )}
                       </div>
-                    )}
+
+                      <div className="new-task__link">
+                        <button className="new-task" onClick={handleAddEpic}>
+                          Создать EpicStory
+                        </button>
+                      </div>
+                    </div>
                   </article>
 
                   <article className="project_people" ref={dropdownPeople.dropdownRef}>
@@ -132,53 +126,31 @@ function Project(): JSX.Element {
                           transform: dropdownPeople.isOpen ? 'rotate(90deg)' : 'none',
                         }}
                       />
-                      <p>
-                        Участники ({projectUsers.length || 0})
-                      </p>
+                      <p>Участники ({usersProject.length})</p>
                     </div>
                     {dropdownPeople.isOpen && (
                       <div className="project_details_content project_people">
-                        <button
-                          className="add-user-button"
-                          onClick={handleAddUserClick}
-                        >
-                          + Добавить участника
-                        </button>
-                        {projectUsers.length > 0 ? (
+                        {usersProject.length > 0 ? (
                           <ul>
-                            {projectUsers.map((projectUser) => {
-                              const user = getFullUserInfo(projectUser.userId);
-                              return user ? (
-                                <li key={projectUser.userId}>
-                                  <img
-                                    src="../img/account_circle.png"
-                                    alt="иконка аккаунта"
-                                    className="project_details_key"
-                                  />
-                                  <p className="project_details_value project_people">
-                                    {user.name} ({user.username})
-                                    <span className="permission-badge">
-                                      {projectUser.permissionCode}
-                                    </span>
-                                  </p>
-                                </li>
-                              ) : null;
-                            })}
+                            {usersProject.map((user) => (
+                              <li key={user.id}>
+                                <img
+                                  src="../img/account_circle.png"
+                                  alt="иконка аккаунта"
+                                  className="project_details_key"
+                                />
+                                <p className="project_details_value project_people">
+                                  {user.lastName} {user.firstName}
+                                </p>
+                              </li>
+                            ))}
                           </ul>
                         ) : (
-                          <p>Нет участников</p>
+                          <p className="no-users-message">Нет участников проекта</p>
                         )}
                       </div>
                     )}
                   </article>
-
-                  {isModalOpen && id && (
-                    <AddUserModal
-                      onClose={handleCloseModal}
-                      projectId={id}
-                      currentUsers={projectUsers}
-                    />
-                  )}
 
                   <article className="project_description" ref={dropdownDescription.dropdownRef}>
                     <div

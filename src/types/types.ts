@@ -1,4 +1,13 @@
-import {AddUserStatus, AuthorizationStatus, CodeStatus, CreationStatus, GetAllUser} from '../const.ts';
+import {
+  AddUserStatus,
+  AuthorizationStatus,
+  CodeStatus,
+  CreationStatus,
+  GetAllUser,
+  TaskStatus,
+  TIME_UNITS
+} from '../const.ts';
+import {ALLOWED_STORY_POINTS} from '../const.ts';
 
 //--- ERROR ---//
 export interface ErrorMesageType {
@@ -36,6 +45,12 @@ export interface UserData {
 }
 
 export interface UserNameData {
+  firstName: string;
+  lastName: string;
+  id: string;
+}
+
+export interface HeadUsersProject {
   id: string;
   firstName: string;
   lastName: string;
@@ -55,12 +70,18 @@ export interface ProjectAllData {
   id: string;
   name: string;
   description: string;
-  headId: string;
+  head: HeadUsersProject;
+  users: HeadUsersProject[];
+  tags: TaskData[];
 }
 
-export interface ProjectsData extends ProjectAllData {
+export interface ProjectsData {
+  id: string;
+  name: string;
+  description: string;
   tags?: CreateTag[];
   users: UserNameData[];
+  head: HeadUsersProject;
 }
 
 export interface UpdateProjectRequest {
@@ -89,18 +110,22 @@ export interface CreateTaskData {
   description: string;
   type: TaskType;
   priority: PriorityType;
-  storyPoints: 0;
-  sprintId: string;
-  assigneeId: string;
-  reviewerId: string;
-  storyTaskId: string;
-  projectId: string;
+  storyPoints: StoryPoint;
+  sprintId?: string;
+  assigneeId?: string;
+  reviewerId?: string;
+  storyTaskId?: string;
+  epicTaskId?: string;
+  projectId?: string;
   dueDate: string;
-  timeEstimation: TimeEstimationData[];
+  timeEstimation?: TimeEstimationData;
+  tagsIds?: string[];
 }
 
+export type StoryPoint = typeof ALLOWED_STORY_POINTS[number];
+
 export interface TimeEstimationData {
-  timeUnit: 'NANOSECONDS' | 'MICROSECONDS' | 'MILLISECONDS' | 'SECONDS' | 'MINUTES' | 'HOURS' | 'DAYS';
+  timeUnit: typeof TIME_UNITS[number];
   amount: number;
 }
 
@@ -186,6 +211,19 @@ export interface CodeValue {
   value: string;
 }
 
+export interface StoriesData {
+  simpleId: string;
+  name: string;
+  status: string;
+  priority: PriorityType;
+  assigneeId: string;
+  subtasks: SubtaskData[];
+}
+
+export type SubtaskData = Omit<StoriesData, 'subtasks'>;
+
+export type DefectsData = SubtaskData;
+
 export type TaskType = 'DEFECT' | 'STORY' | 'EPIC' | 'SUBTASK';
 
 export type Statuses = 'OPEN' | 'IN_PROGRESS' | 'REVIEW' | 'RESOLVED' | 'QA_READY' | 'IN_QA' | 'CLOSED';
@@ -224,7 +262,7 @@ export type UpdateFilterRequest = FilterData;
 export interface UserProjectsControllerData {
   userId: string;
   projectId: string;
-  permissionCode: string;
+  permissionCode?: string;
 }
 
 //--- NOTIFICATIONS ---//
@@ -234,6 +272,77 @@ export interface NotificationsData {
   recipientTelegramId: string;
   creationDateTime: number;
   text: string;
+}
+
+//LOG
+
+export interface CreateLogs {
+  id: string;
+  comment: string;
+  timeEstimation: TimeEstimationData;
+  date: string;
+}
+
+export type UpdateLogsResponse = Omit<CreateLogs, 'id'>;
+
+export interface UpdateLogsRequest {
+  id: string;
+}
+
+//COMMENT
+
+export interface CreateComment {
+  id: string;
+  comment: string;
+}
+
+export type UpdateCommentResponse = Omit<CreateComment, 'id'>;
+
+export interface UpdateCommentRequest {
+  id: string;
+}
+
+export interface AllComments {
+  id: string;
+  content: string;
+  created: string;
+  updated: string;
+  authorId: string;
+  authorName: string;
+}
+
+//SPRINT
+
+export interface CreateSprint {
+  id: string;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  projectId: string;
+}
+
+export type UpdateSprintResponse = Omit<CreateSprint, 'projectId'>;
+
+export interface UpdateSprintRequest {
+  id: string;
+}
+
+export interface SprintData extends CreateSprint{
+  storyCount: number;
+  defectCount: number;
+  stories: StoriesData[];
+  defects: DefectsData[];
+}
+
+export interface SprintAllData {
+  id: string;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
 }
 
 //--- STATE ---//
@@ -247,35 +356,44 @@ export interface AuthState {
 }
 
 export interface ProjectState {
-  projects: CreateProjectData | null;
-  projectsAll: ProjectsData[];
-  projectDetails: ProjectAllData | null;
-  currentProject: CreateProjectData | null;
+  createProjects: CreateProjectData | null;
+  projectsAll: ProjectAllData[];
+  currentProjectDetails: ProjectsData | null;
+  updateProject: UpdateProjectResponse | null;
   status: CreationStatus;
   error: string | null;
   loading: boolean;
 }
 
-export interface TaskStatus {
+export interface TaskState {
   createTask: CreateTaskData | null;
-  taskFindByFilter: TaskFindByFilterResponse | null;
+  taskFindByFilter: TaskFindByFilterResponse[];
   taskDetails: TaskData | null;
   updateTask: UpdateTaskResponse | null;
   updateTaskStatus: UpdateTaskStatusResponse | null;
+  lastFilter: TaskByFilter | null;
   status: CreationStatus;
   error: string | null;
-  loading: boolean;
+}
+
+export interface FilterState {
+  createFilter: FilterData | null;
+  updateFilter: UpdateFilterResponse | null;
+  filtersAll: FilterData[];
+  filterByProject: FilterData[];
+  status: CreationStatus;
+  error: string | null;
 }
 
 export interface TagsState {
-  tags: CreateTag | null;
+  tags: CreateTag[];
   status: CreationStatus;
   error: string | null;
   loading: boolean;
 }
 
 export interface AddUserInProjectState {
-  users: UserProjectsControllerData | null;
+  users: UserProjectsControllerData[];
   status: AddUserStatus;
   error: string | null;
   loading: boolean;
@@ -283,7 +401,25 @@ export interface AddUserInProjectState {
 
 export interface UsersState {
   user: UserNameData | null;
+  usersAutocomplete: UserNameData[];
   loading: boolean;
   error: string | null;
   status: GetAllUser;
+}
+
+export interface NotificationsState {
+  notificationsDetails: NotificationsData[];
+  status: TaskStatus;
+  error: string | null;
+}
+
+export interface SprintState {
+  currentSprint: SprintData | null;
+  getAllSprints: SprintAllData[];
+  createdSprint: CreateSprint | null;
+  chooseCurrentSprint: SprintAllData | null;
+  updatedSprint: UpdateSprintResponse | null;
+  status: CreationStatus;
+  error: string | null;
+  loading: boolean;
 }

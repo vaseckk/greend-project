@@ -1,7 +1,18 @@
 import {AppState} from '../../types/state.ts';
 import {NameSpace} from '../../const.ts';
-import {ProjectState} from '../../types/types.ts';
+import {HeadUsersProject, ProjectState, UserNameData} from '../../types/types.ts';
 
-export const getCurrentProject = (state: AppState): ProjectState['currentProject'] =>
-  state[NameSpace.Project].currentProject;
+export const getProjectInfo = (state: AppState): ProjectState['currentProjectDetails'] =>
+  state[NameSpace.Project].currentProjectDetails;
 
+export const getHeadUserProject = (state: AppState): HeadUsersProject | undefined =>
+  state[NameSpace.Project].currentProjectDetails?.head;
+
+export const getUsersProject = (state: AppState): UserNameData[] =>
+  state[NameSpace.Project].currentProjectDetails?.users || [];
+
+export const isLoading = (state: AppState): ProjectState['loading'] =>
+  state[NameSpace.Project].loading;
+
+export const getAllProjects = (state: AppState): ProjectState['projectsAll'] =>
+  state[NameSpace.Project].projectsAll;

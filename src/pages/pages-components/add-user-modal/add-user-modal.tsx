@@ -1,87 +1,95 @@
-import { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { UserProjectsControllerData} from '../../../types/types';
-import { AddUserInProjects } from '../../../store/api-actions';
-import {getAllUsers} from '../../../store/users-slice/users-selector.ts';
+import {useState, useCallback, useMemo, useEffect} from 'react';
+import { getUsersAutocomplete } from '../../../store/api-actions.ts';
+import { getUsersAutocompleteList } from '../../../store/users-slice/users-selector.ts';
+import { AddUserInProjects } from '../../../store/api-actions.ts';
+import {getAddedUsers} from '../../../store/add-user-slice/add-user-selector.ts';
+import {useAppDispatch, useAppSelector} from '../../../hooks';
+import {getProjectInfo} from '../../../store/project-slice/project-selector.ts';
+import './add-user-modal.scss';
 
-interface AddUserModalProps {
-  onClose: () => void;
-  projectId: string;
-  currentUsers: UserProjectsControllerData[];
-}
-
-function AddUserModal({ onClose, projectId, currentUsers }: AddUserModalProps) {
+function AddUserModal(): JSX.Element {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const usersAutocomplete = useAppSelector(getUsersAutocompleteList);
+  const addedUsers = useAppSelector(getAddedUsers);
   const dispatch = useAppDispatch();
-  const [selectedUserId, setSelectedUserId] = useState('');
-  const [permissionCode, setPermissionCode] = useState('MEMBER');
-  const allUsers = useAppSelector(getAllUsers) || [];
+  const project = useAppSelector(getProjectInfo);
 
-  const availableUsers = allUsers.filter(
-    (user) => !currentUsers.some((projectUser) => projectUser.userId === user.id)
-  );
+  const filteredUsers = useMemo(() => usersAutocomplete.filter((user) =>
+    `${user.lastName} ${user.firstName}`.toLowerCase().includes(searchQuery.toLowerCase())
+  ), [usersAutocomplete, searchQuery]);
 
-  const handleAddUser = () => {
-    if (selectedUserId && projectId) {
-      dispatch(
-        AddUserInProjects({
-          userId: selectedUserId,
-          projectId,
-          permissionCode,
-        })
-      )
-        .unwrap()
-        .then(() => {
-          onClose();
-        })
-        .catch(() => {});
+  useEffect(() => {
+    if (searchQuery.length > 1) {
+      const timer = setTimeout(() => {
+        dispatch(getUsersAutocomplete(searchQuery));
+        setIsDropdownOpen(true);
+      }, 300); // Задержка 300мс
+
+      return () => clearTimeout(timer);
+    } else {
+      setIsDropdownOpen(false);
     }
-  };
+  }, [searchQuery, dispatch]);
+
+  const handleAddUser = useCallback(async (userId: string) => {
+    if (project?.id) {
+      try {
+        await dispatch(AddUserInProjects({
+          userId,
+          projectId: project.id,
+        })).unwrap(); // unwrap для обработки возможных ошибок
+
+        // После успешного добавления
+        setSearchQuery('');
+        setIsDropdownOpen(false);
+
+        // Можно добавить уведомление об успешном добавлении
+      } catch (error) {
+        // Можно добавить уведомление об ошибке
+      }
+    }
+  }, [dispatch, project]);
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h3>Добавить участника</h3>
+    <div className="add-user-dropdown">
+      <input
+        type="text"
+        placeholder="Поиск пользователей..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onFocus={() => searchQuery.length > 1 && setIsDropdownOpen(true)}
+        onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+        className="add-user-search"
+      />
 
-        <div className="form-group">
-          <label>Выберите пользователя:</label>
-          <select
-            value={selectedUserId}
-            onChange={(e) => setSelectedUserId(e.target.value)}
-          >
-            <option value="">-- Выберите --</option>
-            {availableUsers.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name} ({user.username})
-              </option>
-            ))}
-          </select>
+      {isDropdownOpen && filteredUsers.length > 0 && (
+        <div className="user-search-results">
+          {filteredUsers.map((user) => (
+            <div key={user.id} className="user-search-item">
+              <img
+                src="../img/account_circle.png"
+                alt="иконка аккаунта"
+                className="user-avatar"
+              />
+              <span className="user-name">
+                {user.lastName} {user.firstName}
+              </span>
+              {!addedUsers.some((added) => added.userId === user.id) && (
+                <button
+                  onClick={() => handleAddUser(user.id)}
+                  className="add-user-button"
+                >
+                  +
+                </button>
+              )}
+            </div>
+          ))}
         </div>
-
-        <div className="form-group">
-          <label>Уровень доступа:</label>
-          <select
-            value={permissionCode}
-            onChange={(e) => setPermissionCode(e.target.value)}
-          >
-            <option value="MEMBER">Участник</option>
-            <option value="ADMIN">Администратор</option>
-            <option value="OWNER">Владелец</option>
-          </select>
-        </div>
-
-        <div className="modal-actions">
-          <button onClick={onClose}>Отмена</button>
-          <button
-            onClick={handleAddUser}
-            disabled={!selectedUserId}
-            className={!selectedUserId ? 'disabled' : ''}
-          >
-            Добавить
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
 
 export default AddUserModal;
+

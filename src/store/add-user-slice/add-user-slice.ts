@@ -13,7 +13,12 @@ const initialState: AddUserInProjectState = {
 const addUserInProjectSlice = createSlice({
   name: NameSpace.AddUserInProject,
   initialState,
-  reducers: {},
+  reducers: {
+    resetAddUserStatus: (state) => {
+      state.status = AddUserStatus.NotAdded;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(AddUserInProjects.pending, (state) => {
@@ -28,11 +33,9 @@ const addUserInProjectSlice = createSlice({
       })
       .addCase(AddUserInProjects.rejected, (state, action) => {
         state.status = AddUserStatus.Failed;
-        state.error = action.error.message || 'Failed to create tag';
+        state.error = action.error.message || 'Failed to add user to project';
         state.loading = false;
       })
-
-      // Удаление тега
       .addCase(deleteUserInProjects.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -42,12 +45,12 @@ const addUserInProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(deleteUserInProjects.rejected, (state, action) => {
-        state.error = action.error.message || 'Failed to delete tag';
+        state.error = action.error.message || 'Failed to remove user from project';
         state.loading = false;
       });
   }
 });
 
-
+export const { resetAddUserStatus } = addUserInProjectSlice.actions;
 export const addUserInProjectReducer = addUserInProjectSlice.reducer;
 export default addUserInProjectSlice.reducer;

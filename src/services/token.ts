@@ -1,13 +1,11 @@
 const ACCESS_TOKEN_KEY = 'greend-access-token';
 const REFRESH_TOKEN_KEY = 'greend-refresh-token';
 
-const ensureBearer = (token: string): string => {
-  return token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-};
+const ensureBearer = (token: string): string => token.startsWith('Bearer ') ? token : `Bearer ${token}`;
 
 export const getAccessToken = (): string => {
   const token = localStorage.getItem(ACCESS_TOKEN_KEY) || '';
-  return ensureBearer(token); // Возвращаем с Bearer
+  return ensureBearer(token);
 };
 
 export const saveAccessToken = (token: string): void => {

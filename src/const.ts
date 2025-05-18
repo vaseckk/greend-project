@@ -2,6 +2,8 @@ import {StatusCodes} from 'http-status-codes';
 
 export const MAX_LENGTH_SHOW_TAGS = 4;
 export const MIN_LENGTH_SHOW_TAGS = 0;
+export const ALLOWED_STORY_POINTS = [1, 2, 3, 5, 8, 13] as const;
+export const TIME_UNITS = ['NANOSECONDS', 'MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'MINUTES', 'HOURS', 'DAYS'] as const;
 
 export const BACKEND_URL = 'http://api.anst-dev.ru';
 export const REQUEST_TIMEOUT = 5000;
@@ -13,22 +15,24 @@ export const StatusCodeMapping: Record<number, boolean> = {
 };
 
 export enum AppRoute {
-  NewTask = '/newTask',
+  NewTask = '/task',
   NewProject = '/newProject',
+  NewSprint = '/project/:id/sprint',
   BoardsAgile = '/boardsAgile',
   TimeTrackerTask = '/timeTrackerTask',
-  EpicStory = '/epicStory/:id',
-  Story = '/story/:id',
+  Epic = '/epic/',
+  Story = '/story/',
   Project = '/project/:id',
+  AllProjects = '/allProjects',
   Task = '/task/:id',
   Login = '/login',
   NotFound = '*'
 }
 
 export const navItems = [
-  { text: 'Задачи',
+  { text: 'Ваши проекты',
     icon: '/img/assignment.png',
-    path: AppRoute.Task
+    path: AppRoute.AllProjects
   },
   { text: 'Учёт времени',
     icon: '/img/monitoring.png',
@@ -61,6 +65,9 @@ export enum CreationStatus {
   Creating = 'creating',
   Created = 'created',
   Failed= 'failed',
+  NotFound = 'notFound',
+  Loading = 'loading',
+  Found = 'found',
 }
 
 export enum AddUserStatus {
@@ -96,7 +103,12 @@ export enum APIRoute {
   FilterCreate = '/filter',
   FilterAllApi = '/filter/all',
   AddUserInProjectApi = '/users-projects',
-  UserInfoApi = '/user/current'
+  UserInfoApi = '/user/current',
+  UserAutocomplete = '/user/autocomplete',
+  LogsApi = '/logs',
+  CommentApi = '/comments',
+  SprintApi = '/sprint',
+  SprintAllApi = '/sprint/all',
 }
 
 export enum NameSpace {
@@ -110,5 +122,14 @@ export enum NameSpace {
   Story = 'story',
   Project = 'project',
   Task = 'task',
-  Tags = 'tags'
+  Filter = 'filter',
+  Tags = 'tags',
+  Sprint = 'sprint'
 }
+
+export const TelegramAuthRoute = [
+  APIRoute.AuthSigninApi,
+  APIRoute.AuthRefreshApi,
+  APIRoute.VerifyCodeApi,
+  APIRoute.SendCodeApi,
+];

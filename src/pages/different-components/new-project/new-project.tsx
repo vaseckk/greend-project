@@ -1,20 +1,20 @@
 import {useAppDispatch, useAppSelector} from '../../../hooks';
-import {useNavigate} from 'react-router-dom';
+import {generatePath, useNavigate} from 'react-router-dom';
 import './new-project.scss';
 import {ChangeEvent, FormEvent, useEffect, useState} from 'react';
-import {AppRoute, CreationStatus, NameSpace} from '../../../const.ts';
+import {AppRoute, CreationStatus} from '../../../const.ts';
 import {createProject, getUserInfo} from '../../../store/api-actions.ts';
 import {Helmet} from 'react-helmet-async';
 import Sidebar from '../../pages-components/sidebar/sidebar.tsx';
 import Header from '../../pages-components/header/header.tsx';
 import SearchFor from '../../pages-components/search-for/search-for.tsx';
-import {getMyUser, getUser} from '../../../store/users-slice/users-selector.ts';
+import {getMyUser,getUserId} from '../../../store/users-slice/users-selector.ts';
 
 function NewProject(): JSX.Element {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const currentUser = useAppSelector(getMyUser);
-  const firstname = useAppSelector(getUser);
+  const id = useAppSelector(getUserId);
 
   const [projectData, setProjectData] = useState({
     name: '',
@@ -24,7 +24,7 @@ function NewProject(): JSX.Element {
   const [status, setStatus] = useState<CreationStatus>(CreationStatus.Idle);
   const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setProjectData({
       ...projectData,
@@ -46,11 +46,12 @@ function NewProject(): JSX.Element {
     try {
       const result = await dispatch(createProject({
         ...projectData,
-        headId: currentUser,
+        headId: id,
       })).unwrap();
 
       setStatus(CreationStatus.Created);
-      navigate(`${AppRoute.Project}/${result.id}`);
+      const path = generatePath(`${AppRoute.Project}/:id`, { id: result.id });
+      navigate(path);
     } catch (err) {
       setStatus(CreationStatus.Failed);
       setError(err instanceof Error ? err.message : 'Не удалось создать проект');
@@ -112,12 +113,6 @@ function NewProject(): JSX.Element {
                           autoComplete={'off'}
                         />
                       </div>
-                    </div>
-                  </article>
-
-                  <article className="task-basic_name_type--key">
-                    <div className="task-basic_name_container">
-                      <p>Ключ проекта {currentUser ? currentUser : 'Пользователь не загружен'} {firstname}</p>
                     </div>
                   </article>
 

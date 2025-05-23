@@ -145,6 +145,7 @@ export interface TaskFindByFilterResponse {
 }
 
 export interface TaskData {
+  id: string;
   simpleId: string;
   name: string;
   description: string;
@@ -180,17 +181,24 @@ export interface TaskData {
   };
 }
 
+export interface CreateTaskResponse {
+  id: string;
+  simpleId: string;
+}
+
 export interface UpdateTaskRequest {
   name: string;
   description: string;
   type: TaskType;
   priority: PriorityType;
-  assigneeId: string;
-  reviewerId: string;
+  assigneeId?: string;
+  reviewerId?: string;
+  storyPoints: number;
+  storyTaskId?: string;
   testerId?: string;
   sprintId?: string;
   dueDate?: string;
-  timeEstimation: TimeEstimationData;
+  timeEstimation?: TimeEstimationData;
   tagIds?: string[];
 }
 
@@ -293,13 +301,15 @@ export interface UpdateLogsRequest {
 
 export interface CreateComment {
   id: string;
-  comment: string;
+  content: string;
 }
 
-export type UpdateCommentResponse = Omit<CreateComment, 'id'>;
+export interface UpdateCommentResponse {
+  id: string;
+}
 
 export interface UpdateCommentRequest {
-  id: string;
+  content: string;
 }
 
 export interface AllComments {
@@ -366,7 +376,7 @@ export interface ProjectState {
 }
 
 export interface TaskState {
-  createTask: CreateTaskData | null;
+  createTask: CreateTaskResponse | null;
   taskFindByFilter: TaskFindByFilterResponse[];
   taskDetails: TaskData | null;
   updateTask: UpdateTaskResponse | null;
@@ -422,4 +432,17 @@ export interface SprintState {
   status: CreationStatus;
   error: string | null;
   loading: boolean;
+}
+
+export interface CommentState {
+  createComment: CreateComment | null;
+  updateComment: UpdateCommentResponse | null;
+  getAllComments: AllComments[];
+  status: CreationStatus;
+  error: string | null;
+  loading: boolean;
+}
+
+export interface LocationState {
+  projectId?: string;
 }

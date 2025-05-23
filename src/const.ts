@@ -16,15 +16,21 @@ export const StatusCodeMapping: Record<number, boolean> = {
 
 export enum AppRoute {
   NewTask = '/task',
+  NewTaskStory = '/newStory',
+  NewTaskSubtask = '/newSubtask',
   NewProject = '/newProject',
+  Edit = '/:id/edit',
+  EditStory = '/story/:id/edit',
+  EditSubtask = '/subtask/:id/edit',
+  EditProject = '/project/:id/edit',
   NewSprint = '/project/:id/sprint',
   BoardsAgile = '/boardsAgile',
   TimeTrackerTask = '/timeTrackerTask',
-  Epic = '/epic/',
-  Story = '/story/',
+  Epic = '/epic/:id',
+  Story = '/story/:id',
   Project = '/project/:id',
   AllProjects = '/allProjects',
-  Task = '/task/:id',
+  Task = '/task/task',
   Login = '/login',
   NotFound = '*'
 }
@@ -124,7 +130,8 @@ export enum NameSpace {
   Task = 'task',
   Filter = 'filter',
   Tags = 'tags',
-  Sprint = 'sprint'
+  Sprint = 'sprint',
+  Comment = 'comment'
 }
 
 export const TelegramAuthRoute = [

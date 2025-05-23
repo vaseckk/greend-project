@@ -27,9 +27,17 @@
 .message-list__description {
   background-color: $buttonColor;
   border-radius: 15px;
+  display: flex;
   p {
     margin: calc($index * 0.5);
     font-size: calc($index * 0.7);
+  }
+
+  img {
+    width: calc($index * 0.8);
+    height: calc($index * 0.8);
+    margin: calc($index * 0.5) calc($index * 0.2) calc($index * 0.5) calc($index * 0);
+    cursor: pointer;
   }
 }
 
@@ -38,4 +46,9 @@
     margin: 5px 0;
     font-size: calc($index * 0.55);
   }
+}
+
+.empty-message {
+  width: 100%;
+  text-align: center;
 }

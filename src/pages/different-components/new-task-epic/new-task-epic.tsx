@@ -2,17 +2,18 @@ import {Helmet} from 'react-helmet-async';
 import Sidebar from '../../pages-components/sidebar/sidebar.tsx';
 import Header from '../../pages-components/header/header.tsx';
 import SearchFor from '../../pages-components/search-for/search-for.tsx';
-import Tags from '../../pages-components/tags/tags.tsx';
 import {PriorityType, TaskType, StoryPoint, TimeEstimationData} from '../../../types/types.ts';
 import {useAppDispatch, useAppSelector} from '../../../hooks';
 import {generatePath, useNavigate} from 'react-router-dom';
-import {getProjectInfo} from '../../../store/project-slice/project-selector.ts';
+import {getProjectInfo, getTagsProject} from '../../../store/project-slice/project-selector.ts';
 import {ChangeEvent, FormEvent, useEffect, useState} from 'react';
-import {createTask} from '../../../store/api-actions.ts';
+import {createTask, getAllSprints} from '../../../store/api-actions.ts';
 import {ALLOWED_STORY_POINTS, AppRoute, TIME_UNITS} from '../../../const.ts';
 import {useDropdownInput} from '../../../hooks/use-dropdown-input/use-dropdown-input.ts';
 import './new-task-epic.scss';
 import UsersSelectSubtask from '../../pages-components/users-select-subtask/users-select-subtask.tsx';
+import {getAllSprintsSelector} from '../../../store/sprint-slice/sprint-selector.ts';
+import {setCurrentSprint} from '../../../store/sprint-slice/sprint-slice.ts';
 
 const PRIORITY_OPTIONS: PriorityType[] = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'TRIVIAL'];
 
@@ -22,6 +23,17 @@ function NewTaskEpic(): JSX.Element {
 
   const dropdownPriority = useDropdownInput(PRIORITY_OPTIONS);
   const currentProject = useAppSelector(getProjectInfo);
+
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const projectId = currentProject?.id;
+
+  const allSprints = useAppSelector(getAllSprintsSelector);
+  const sprintsNames = allSprints.map((sprint) => sprint.name);
+  const dropdownSprint = useDropdownInput(sprintsNames);
+
+  const tagsProject = useAppSelector(getTagsProject);
+  const tagNames = tagsProject.map((tag) => tag.name);
+  const dropdownTags = useDropdownInput(tagNames);
 
   const [timeEstimations, setTimeEstimations] = useState<TimeEstimationData>(
     {amount: 0, timeUnit: 'HOURS'}
@@ -35,6 +47,7 @@ function NewTaskEpic(): JSX.Element {
     storyPoints: 1 as StoryPoint,
     assigneeId: '',
     reviewerId: '',
+    sprintId: '',
     dueDate: '',
     projectId: currentProject?.id || '',
     timeEstimation: {
@@ -60,7 +73,7 @@ function NewTaskEpic(): JSX.Element {
     dispatch(createTask(EpicData))
       .then((action) => {
         if (createTask.fulfilled.match(action)) {
-          const path = generatePath(`${AppRoute.Epic}/:id`, { id: action.payload.id });
+          const path = generatePath(`${AppRoute.Epic}`, { id: action.payload.simpleId });
           navigate(path);
         }
       });
@@ -72,6 +85,15 @@ function NewTaskEpic(): JSX.Element {
       [field]: field === 'amount' ? Number(value) || 0 : value
     }));
   };
+
+  const handleTagSelect = (tagName: string) => {
+    const selectedTag = tagsProject.find((tag) => tag.name === tagName);
+    if (selectedTag && !selectedTagIds.includes(selectedTag.id)) {
+      setSelectedTagIds([...selectedTagIds, selectedTag.id]);
+    }
+    dropdownTags.handleItemSelect(tagName);
+  };
+
 
   useEffect(() => {
     setEpicData((prev) => ({
@@ -91,6 +113,20 @@ function NewTaskEpic(): JSX.Element {
       }
     }));
   }, [timeEstimations]);
+
+  useEffect(() => {
+    setEpicData((prev) => ({
+      ...prev,
+      tagsIds: selectedTagIds
+    }));
+  }, [selectedTagIds]);
+
+  useEffect(() => {
+    if (projectId) {
+      dispatch(getAllSprints({ projectId })); // Передаём объект { projectId: string }
+    }
+  }, [projectId, dispatch]);
+
   return (
     <div className="page__main">
       <Helmet>
@@ -180,13 +216,100 @@ function NewTaskEpic(): JSX.Element {
                       </article>
                     </article>
 
-                    {/*
-                    <article className="task-basic_tags">
+                    <article className="task-basic_tags-project">
                       <div className="task-basic_tags_container">
-                        <Tags/>
+                        <p>Теги</p>
+                        <button
+                          type="button"
+                          className="task-basic_type-choose"
+                          onClick={dropdownTags.toggleDropdown}
+                        >
+                          <input
+                            placeholder="Выберите теги"
+                            value={dropdownTags.inputValue}
+                            onChange={dropdownTags.handleInputChange}
+                          />
+                          <img src="../img/chevron.png" alt=""/>
+                        </button>
+                        <div className="selected-tags">
+                          {selectedTagIds.map((tagId) => {
+                            const tag = tagsProject.find((t) => t.id === tagId);
+                            return tag ? (
+                              <span key={tagId} className="selected-tag">
+                                <span className="selected-tag_container">
+                                  <div className="selected-tag_container-name">{tag.name}</div>
+                                  <button
+                                    type="button"
+                                    className="tags-delete"
+                                    onClick={() => setSelectedTagIds(selectedTagIds.filter((id) => id !== tagId))}
+                                  >
+                                    ×
+                                  </button>
+                                </span>
+                              </span>
+                            ) : null;
+                          })}
+                        </div>
+                        {dropdownTags.isOpen && (
+                          <div className="choose-project">
+                            <ul>
+                              {dropdownTags.items.map((tagName) => (
+                                <li
+                                  key={tagName}
+                                  onClick={() => handleTagSelect(tagName)}
+                                >
+                                  {tagName}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="task-basic_tags_container" ref={dropdownSprint.dropdownRef}>
+                        <p>Спринт</p>
+                        <button
+                          type="button"
+                          className="task-basic_type-choose"
+                          onClick={dropdownSprint.toggleDropdown}
+                        >
+                          <input
+                            placeholder="Выберите спринт"
+                            value={dropdownSprint.inputValue}
+                            onChange={dropdownSprint.handleInputChange}
+                            readOnly
+                          />
+                          <img src="../img/chevron.png" alt=""/>
+                        </button>
+                        {dropdownSprint.isOpen && (
+                          <div className="choose-project">
+                            {allSprints.length > 0 ? (
+                              <ul>
+                                {allSprints.map((sprint) => (
+                                  <li
+                                    key={sprint.id}
+                                    onClick={() => {
+                                      dispatch(setCurrentSprint(sprint));
+                                      dropdownSprint.handleItemSelect(sprint.name); // Устанавливаем имя для отображения
+                                      setEpicData((prev) => ({
+                                        ...prev,
+                                        sprintId: sprint.id // Устанавливаем id спринта
+                                      }));
+                                      dropdownSprint.toggleDropdown();
+                                    }}
+                                    className="selected"
+                                  >
+                                    {sprint.name}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <div className="empty-message">Нет доступных спринтов</div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </article>
-                    */}
 
                     <article className="task-basic_type-priority-complexity">
                       <div className="task-basic_type_container">

@@ -19,12 +19,12 @@
 }
 
 .form-block {
-  margin-bottom: calc($index * 0.75);
   margin-left: calc($index * 0.3);
 }
 
 .form-block__input {
   border: 1px solid $accent;
+  width: 50vw;
   border-radius: 15px;
   display: flex;
   align-items: center;
@@ -72,6 +72,8 @@
 }
 
 .tags_block__existing {
+  position: absolute;
+  width: 50vw;
   border-radius: 15px;
   margin-top: 5px;
   background-color: $buttonColor;
@@ -143,7 +145,7 @@
 
 .tags-list {
   display: flex;
-  margin: 0 5px;
+  margin: 0 5px 10px 5px;
   height: calc($index * 1);
   flex-direction: row;
   align-items: center;
@@ -180,15 +182,14 @@
   border: none;
   border-radius: 15px;
   display: flex;
-  background-color: $borderColor;
-  opacity: .5;
+  background-color: $buttonColor;
   -webkit-transition: all 0.5s ease;
   transition: all 0.5s ease;
   cursor: pointer;
   margin-left: 15px;
   justify-content: center;
   align-items: center;
-  width: calc($index * 1.2);
+  width: calc($index * 3);
 
   p {
     padding: 0;

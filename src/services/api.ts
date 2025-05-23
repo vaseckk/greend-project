@@ -1,9 +1,9 @@
 import axios, {AxiosInstance, AxiosResponse, InternalAxiosRequestConfig, AxiosError} from 'axios';
-import {dropTokens, getAccessToken, getRefreshToken, saveAccessToken, saveRefreshToken} from './token.ts';
+import {dropTokens, getAccessToken, getRefreshToken} from './token.ts';
 import {StatusCodeMapping, BACKEND_URL, REQUEST_TIMEOUT, TelegramAuthRoute} from '../const.ts';
-import {AuthTokens, ErrorMesageType} from '../types/types.ts';
+import {ErrorMesageType} from '../types/types.ts';
 import {toast} from 'react-toastify';
-import {logoutAction} from '../store/api-actions.ts';
+import {logoutAction, refreshTokensAction} from '../store/api-actions.ts';
 import {store} from '../store';
 
 const shouldDisplayError = (response: AxiosResponse) => Boolean(StatusCodeMapping[response.status]);
@@ -14,22 +14,15 @@ export const createApi = (): AxiosInstance => {
     timeout: REQUEST_TIMEOUT,
   });
 
-  const ensureBearer = (token: string): string => token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-
   // Request interceptor
   api.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      const token = getAccessToken();
-      const tokenWithBearer = ensureBearer(token);
+      const token = getAccessToken(); // Уже с Bearer
 
       if (token && config.headers) {
-        // Если запрос входит в список TELEGRAM_AUTH_ROUTES → используем Authorization-Telegram
-        if (TelegramAuthRoute.some((route) => config.url?.includes(route))) {
-          config.headers['Authorization-Telegram'] = tokenWithBearer;
-        } else {
-          // Иначе → стандартный Authorization
-          config.headers['Authorization'] = tokenWithBearer;
-        }
+        const isTelegramRoute = TelegramAuthRoute.some((route) => config.url?.includes(route));
+        const headerName = isTelegramRoute ? 'Authorization-Telegram' : 'Authorization';
+        config.headers[headerName] = token;
       }
 
       return config;
@@ -39,40 +32,37 @@ export const createApi = (): AxiosInstance => {
   api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError<ErrorMesageType>) => {
-      if (error.response && shouldDisplayError(error.response)) {
-        const detailMessage = error.response.data;
-        toast.warn(detailMessage.message);
+      const { response, config: originalRequest } = error;
+
+      // Показываем ошибки пользователю
+      if (response && shouldDisplayError(response)) {
+        toast.warn(response.data.message);
       }
 
-      if (error.response?.status === 401) {
-        const originalRequest = error.config;
+      // Обработка 401 ошибки (истекший accessToken)
+      if (response?.status === 401 && originalRequest && !originalRequest.url?.includes('/auth/refresh')) {
+        try {
+          const refreshToken = getRefreshToken();
 
-        if (originalRequest && !originalRequest.url?.includes('/auth/refresh')) {
-          try {
-            const refreshToken = getRefreshToken();
-            const refreshTokenWithBearer = ensureBearer(refreshToken);
-
-            if (!refreshToken) {
-              throw new Error('No refresh token');
-            }
-
-            const { data } = await api.post<AuthTokens>('/auth/refresh', {
-              refreshToken: refreshTokenWithBearer
-            });
-
-            saveAccessToken(data.accessToken);
-            saveRefreshToken(data.refreshToken);
-
-            if (originalRequest.headers) {
-              originalRequest.headers['x-token'] = ensureBearer(data.accessToken);
-            }
-
-            return api(originalRequest);
-          } catch (refreshError) {
-            store.dispatch(logoutAction());
-            dropTokens();
-            toast.warn('Сессия истекла. Пожалуйста, войдите снова.');
+          // Если refreshToken отсутствует, сразу разлогиниваем
+          if (!refreshToken) {
+            throw new Error('No refresh token');
           }
+
+          // 1. Пытаемся обновить токены через Redux
+          await store.dispatch(refreshTokensAction()).unwrap();
+
+          // 2. Повторяем оригинальный запрос с новым токеном
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = getAccessToken();
+          }
+          return api(originalRequest);
+
+        } catch (err) {
+          // Если обновление не удалось, разлогиниваем
+          store.dispatch(logoutAction());
+          dropTokens();
+          toast.warn('Сессия истекла. Пожалуйста, войдите снова.');
         }
       }
 

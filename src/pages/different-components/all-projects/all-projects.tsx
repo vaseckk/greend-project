@@ -3,13 +3,20 @@ import Sidebar from '../../pages-components/sidebar/sidebar.tsx';
 import Header from '../../pages-components/header/header.tsx';
 import SearchFor from '../../pages-components/search-for/search-for.tsx';
 import './all-projects.scss';
-import {useAppSelector} from '../../../hooks';
+import {useAppDispatch, useAppSelector} from '../../../hooks';
 import {getAllProjects} from '../../../store/project-slice/project-selector.ts';
 import {generatePath, Link} from 'react-router-dom';
 import {AppRoute} from '../../../const.ts';
+import {useEffect} from 'react';
+import {getAllProject} from '../../../store/api-actions.ts';
 
 function AllProjects(): JSX.Element {
+  const dispatch = useAppDispatch();
   const allProjects = useAppSelector(getAllProjects);
+
+  useEffect(() => {
+    dispatch(getAllProject());
+  }, [dispatch]);
 
   return (
     <div>

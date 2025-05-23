@@ -9,7 +9,7 @@ import {
   CreateProjectData,
   CreateSprint,
   CreateTag,
-  CreateTaskData,
+  CreateTaskData, CreateTaskResponse,
   FilterData,
   LoginData,
   NotificationsData,
@@ -37,7 +37,7 @@ import {
   UserProjectsControllerData,
   VerifyCodeData
 } from '../types/types.ts';
-import {dropTokens, saveAccessToken, saveRefreshToken} from '../services/token.ts';
+import {dropTokens, getRefreshToken, saveAccessToken, saveRefreshToken} from '../services/token.ts';
 import {APIRoute} from '../const.ts';
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
@@ -62,7 +62,6 @@ export const verifyCodeAction = createAppAsyncThunk<AuthTokens, VerifyCodeData>(
       telegramId
     });
     saveAccessToken(data.accessToken);
-    saveRefreshToken(data.refreshToken);
     return data;
   }
 );
@@ -76,12 +75,17 @@ export const loginAction = createAppAsyncThunk<UserData, LoginData>(
     return data;
   }
 );
-export const refreshTokensAction = createAppAsyncThunk<AuthTokens, string>(
+
+export const refreshTokensAction = createAppAsyncThunk<AuthTokens, void>(
   'auth/refreshTokens',
-  async (refreshToken, { extra: api }) => {
-    // Передаём токен как есть (с Bearer)
+  async (_, { extra: api }) => {
+    const refreshToken = getRefreshToken(); // Получаем refresh token без Bearer
+    if (!refreshToken) {
+      throw new Error('No refresh token');
+    }
+
     const { data } = await api.post<AuthTokens>(APIRoute.AuthRefreshApi, {
-      refreshToken // Оставляем оригинальный формат
+      refreshToken // Передаём без Bearer
     });
 
     saveAccessToken(data.accessToken);
@@ -90,13 +94,30 @@ export const refreshTokensAction = createAppAsyncThunk<AuthTokens, string>(
   }
 );
 
-export const checkAuthAction = createAppAsyncThunk<UserData>(
+export const checkAuthAction = createAppAsyncThunk<void>(
   'auth/checkAuth',
-  async (_, { extra: api }) => {
-    const { data } = await api.get<AuthTokens & UserData>(APIRoute.AuthSigninApi);
-    saveAccessToken(data.accessToken);
-    saveRefreshToken(data.refreshToken);
-    return data;
+  async (_, { extra: api, rejectWithValue }) => {
+    try {
+      // Просто делаем любой запрос, требующий авторизации
+      await api.get(APIRoute.UserInfoApi);
+    } catch (error) {
+      try {
+        const refreshToken = getRefreshToken();
+        if (!refreshToken) {
+          throw new Error('No refresh token');
+        }
+
+        const { data } = await api.post<AuthTokens>(APIRoute.AuthRefreshApi, {
+          refreshToken
+        });
+
+        saveAccessToken(data.accessToken);
+        saveRefreshToken(data.refreshToken);
+      } catch (refreshError) {
+        dropTokens();
+        return rejectWithValue('Session expired');
+      }
+    }
   }
 );
 
@@ -204,10 +225,10 @@ export const deleteFilter = createAppAsyncThunk<string, string>(
 
 //--- TASK ---//
 
-export const createTask = createAppAsyncThunk<CreateTaskData, Omit<CreateTaskData, 'id'>>(
+export const createTask = createAppAsyncThunk<CreateTaskResponse, Omit<CreateTaskData, 'id'>>(
   'project/createTask',
   async (taskData, {extra: api}) => {
-    const {data} = await api.post<CreateTaskData>(APIRoute.TaskCreateApi, taskData);
+    const {data} = await api.post<CreateTaskResponse>(APIRoute.TaskCreateApi, taskData);
     return data;
   }
 );
@@ -355,7 +376,7 @@ export const createComments = createAppAsyncThunk<
   'comments/createComments',
   async ({projectId, simpleId, commentData}, {extra: api}) => {
     const {data} = await api.post<CreateComment>(
-      `${APIRoute.ProjectCreateApi}/${projectId}/${APIRoute.TaskCreateApi}/${simpleId}/${APIRoute.CommentApi}`,
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.TaskCreateApi}/${simpleId}${APIRoute.CommentApi}`,
       commentData
     );
     return data;
@@ -369,7 +390,7 @@ export const updateComment = createAppAsyncThunk<
   'comments/updateComments',
   async ({projectId, simpleId, id, data}, {extra: api}) => {
     const response = await api.put<UpdateCommentResponse>(
-      `${APIRoute.ProjectCreateApi}/${projectId}/${APIRoute.TaskCreateApi}/${simpleId}/${APIRoute.CommentApi}/${id}/`,
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.TaskCreateApi}/${simpleId}${APIRoute.CommentApi}/${id}/`,
       data
     );
     return response.data;
@@ -383,17 +404,17 @@ export const deleteComments = createAppAsyncThunk<
   'comments/deleteComments',
   async ({ projectId, simpleId, id }, { extra: api }) => {
     await api.delete(
-      `${APIRoute.ProjectCreateApi}/${projectId}/${APIRoute.TaskCreateApi}/${simpleId}/${APIRoute.CommentApi}/${id}/`,
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.TaskCreateApi}/${simpleId}${APIRoute.CommentApi}/${id}/`,
     );
     return id;
   }
 );
 
-export const getAllComments = createAppAsyncThunk<AllComments, {projectId: string; simpleId: string}>(
+export const getAllComments = createAppAsyncThunk<AllComments[], {projectId: string; simpleId: string}>(
   'comments/getAllComments',
   async ({ projectId, simpleId}, { extra: api }) => {
-    const { data } = await api.get<AllComments>(
-      `${APIRoute.ProjectCreateApi}/${projectId}/${APIRoute.TaskCreateApi}/${simpleId}/${APIRoute.CommentApi}/`,
+    const { data } = await api.get<AllComments[]>(
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.TaskCreateApi}/${simpleId}${APIRoute.CommentApi}`,
     );
     return data;
   }
@@ -423,7 +444,7 @@ export const updateSprint = createAppAsyncThunk<
   'sprint/updateSprint',
   async ({projectId, id, data}, {extra: api}) => {
     const response = await api.put<UpdateSprintResponse>(
-      `${APIRoute.ProjectCreateApi}/${projectId}/${APIRoute.SprintApi}/${id}/`,
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.SprintApi}/${id}/`,
       data
     );
     return response.data;
@@ -441,7 +462,7 @@ export const updateTaskSprint = createAppAsyncThunk<
   'sprint/updateTaskSprint',
   async ({ projectId, id, simpleId}, { extra: api }) => {
     await api.put(
-      `${APIRoute.ProjectCreateApi}/${projectId}/${APIRoute.SprintApi}/${id}//${APIRoute.TaskCreateApi}/${simpleId}`,
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.SprintApi}/${id}${APIRoute.TaskCreateApi}/${simpleId}`,
     );
     return true;
   }

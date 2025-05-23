@@ -4,7 +4,7 @@ import './project.scss';
 import SearchFor from '../../pages-components/search-for/search-for.tsx';
 import useDropdownButton from '../../../hooks/use-dropdown-button/use-dropdown-button.ts';
 import {Helmet} from 'react-helmet-async';
-import {generatePath, useNavigate, useParams} from 'react-router-dom';
+import {generatePath, Link, useNavigate, useParams} from 'react-router-dom';
 import {useAppDispatch, useAppSelector} from '../../../hooks';
 import {
   getHeadUserProject,
@@ -16,6 +16,7 @@ import {useEffect} from 'react';
 import {fetchProjectsAction} from '../../../store/api-actions.ts';
 import {AppRoute} from '../../../const.ts';
 import AddUserModal from '../../pages-components/add-user-modal/add-user-modal.tsx';
+import Tags from '../../pages-components/tags/tags.tsx';
 
 function Project(): JSX.Element {
   const {id} = useParams<{
@@ -76,7 +77,7 @@ function Project(): JSX.Element {
             <div className="project">
               <section className="project_information">
                 <div className="project_parametres">
-                  <article className="project_title">
+                  <article className="project_title-info">
                     <div className="project_title-names">
                       <div className="project_title_parametres">
                         <h1 className="project_title_name">Проект:</h1>
@@ -102,7 +103,7 @@ function Project(): JSX.Element {
                         </button>
 
                         {dropdownAddUser.isOpen && (
-                          <AddUserModal />
+                          <AddUserModal/>
                         )}
                       </div>
 
@@ -111,8 +112,20 @@ function Project(): JSX.Element {
                           Создать EpicStory
                         </button>
                       </div>
+
+                      <Link to={generatePath(AppRoute.EditProject, {id: project.id})} className="edit-project">
+                        <button className="edit-project__button">
+                          <img src="../img/edit_square.png" alt="редактировать"/>
+                        </button>
+                      </Link>
                     </div>
                   </article>
+
+
+                  <article className="task-basic_tags">
+                    <Tags/>
+                  </article>
+
 
                   <article className="project_people" ref={dropdownPeople.dropdownRef}>
                     <div

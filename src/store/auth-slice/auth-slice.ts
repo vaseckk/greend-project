@@ -9,11 +9,14 @@ import {
   sendCodeAction,
   verifyCodeAction
 } from '../api-actions.ts';
+import {ACCESS_TOKEN_KEY} from '../../services/token.ts';
 
 const initialState: AuthState = {
   user: null,
   tokens: null,
-  authStatus: AuthorizationStatus.Unknown,
+  authStatus:  localStorage.getItem(ACCESS_TOKEN_KEY)
+    ? AuthorizationStatus.Auth // Если есть токен → считаем авторизованным
+    : AuthorizationStatus.Unknown,
   codeStatus: CodeStatus.Unknown,
   error: null,
 };
@@ -66,11 +69,14 @@ const authSlice = createSlice({
       .addCase(refreshTokensAction.fulfilled, (state, action) => {
         state.tokens = action.payload;
       })
-
-      // Проверка авторизации
-      .addCase(checkAuthAction.fulfilled, (state, action) => {
-        state.user = action.payload;
+      .addCase(checkAuthAction.pending, (state) => {
+        state.authStatus = AuthorizationStatus.Unknown;
+      })
+      .addCase(checkAuthAction.fulfilled, (state) => {
         state.authStatus = AuthorizationStatus.Auth;
+      })
+      .addCase(checkAuthAction.rejected, (state) => {
+        state.authStatus = AuthorizationStatus.Failed;
       })
 
       // Выход

@@ -17,11 +17,11 @@ import {getCurrentTask} from '../../../store/task-slice/task-selector.ts';
 
 const PRIORITY_OPTIONS: PriorityType[] = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'TRIVIAL'];
 
-function NewTaskStory(): JSX.Element {
+function NewDefect(): JSX.Element {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const currentEpic = useAppSelector(getCurrentTask);
+  const currentStory = useAppSelector(getCurrentTask);
   const dropdownPriority = useDropdownInput(PRIORITY_OPTIONS);
   const currentProject = useAppSelector(getProjectInfo);
   const projectId = currentProject?.id;
@@ -43,11 +43,11 @@ function NewTaskStory(): JSX.Element {
   const [EpicData, setEpicData] = useState({
     name: '',
     description: '',
-    type: 'STORY' as TaskType,
+    type: 'DEFECT' as TaskType,
     priority: 'MAJOR' as PriorityType,
     storyPoints: 1 as StoryPoint,
     assigneeId: '',
-    epicTaskId: currentEpic?.id || '',
+    epicTaskId: currentStory?.id || '',
     reviewerId: '',
     sprintId: '',
     dueDate: '',
@@ -132,7 +132,7 @@ function NewTaskStory(): JSX.Element {
   return (
     <div className="page__main">
       <Helmet>
-        <title>Greend: Создание Story</title>
+        <title>Greend: Создание Дефекта</title>
       </Helmet>
       <div className="page__main__parametres">
         <article className="page__main-sideber">
@@ -155,7 +155,7 @@ function NewTaskStory(): JSX.Element {
                     <article className="task-basic_title">
                       <div className="task-basic_title_container">
                         <h1 className="task-basic_title_name">
-                          Создание новой Story в Эпике {currentEpic?.name}
+                          Создание новой Дефекта в Story {currentStory?.name}
                         </h1>
                       </div>
                     </article>
@@ -412,4 +412,4 @@ function NewTaskStory(): JSX.Element {
   );
 }
 
-export default NewTaskStory;
+export default NewDefect;

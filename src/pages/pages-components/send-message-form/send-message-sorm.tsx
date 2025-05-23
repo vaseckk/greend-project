@@ -1,18 +1,77 @@
 import './send-message-form.scss';
-import {useEffect, useRef, KeyboardEvent} from 'react';
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
-import useDropdownButton from '../../../hooks/use-dropdown-button/use-dropdown-button.ts';
+import {useEffect, useRef, KeyboardEvent, useState, ChangeEvent, FormEvent} from 'react';
+import {useAppDispatch, useAppSelector} from '../../../hooks';
+import {getProjectInfo} from '../../../store/project-slice/project-selector.ts';
+import {createComments, updateComment} from '../../../store/api-actions.ts';
 
-function SendMessageForm(): JSX.Element {
+interface SendMessageFormProps {
+  taskSimpleId: string;
+  editingComment: {id: string; content: string} | null;
+  onCancelEdit: () => void;
+  onUpdateSuccess: () => void;
+}
+
+function SendMessageForm({taskSimpleId, editingComment, onCancelEdit, onUpdateSuccess}: SendMessageFormProps): JSX.Element {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const dropdwonShowEmojiPicker = useDropdownButton();
+  const dispatch = useAppDispatch();
+  const currentProject = useAppSelector(getProjectInfo);
+
+  const [commentData, setCommentData] = useState({
+    content: ''
+  });
 
   const adjustTextareaRef = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      textareaRef.current.focus();
     }
   };
+
+  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    const {name, value} = e.target;
+    setCommentData({
+      ...commentData,
+      [name]: value
+    });
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!currentProject?.id || !taskSimpleId || !commentData.content.trim()) {
+      return;
+    }
+
+    if (editingComment) {
+      dispatch(updateComment({
+        projectId: currentProject.id,
+        simpleId: taskSimpleId,
+        id: editingComment.id,
+        data: {content: commentData.content}
+      })).then(() => {
+        setCommentData({content: ''});
+        onUpdateSuccess();
+      });
+    } else {
+      // Создание нового комментария
+      dispatch(createComments({
+        projectId: currentProject.id,
+        simpleId: taskSimpleId,
+        commentData: {
+          ...commentData,
+        }
+      })).then(() => {
+        setCommentData({content: ''});
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (editingComment) {
+      setCommentData({content: editingComment.content});
+      adjustTextareaRef();
+    }
+  }, [editingComment]);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -26,71 +85,62 @@ function SendMessageForm(): JSX.Element {
   }, []);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    // Обрабатываем только Ctrl+Enter
     if (e.ctrlKey && e.key === 'Enter') {
-      e.preventDefault(); // Предотвращаем стандартное поведение (например, отправку формы)
+      e.preventDefault();
       const textarea = e.currentTarget;
       const startPos = textarea.selectionStart;
       const endPos = textarea.selectionEnd;
 
-      // Вставляем перенос строки
-      textarea.value = `${textarea.value.substring(0, startPos)}\n${textarea.value.substring(endPos)}`;
+      const newValue =
+        `${commentData.content.substring(0, startPos)}\n${commentData.content.substring(endPos)}`;
 
-      // Перемещаем курсор после вставленного переноса
-      textarea.selectionStart = startPos + 1;
-      textarea.selectionEnd = startPos + 1;
+      setCommentData({
+        ...commentData,
+        content: newValue
+      });
+
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.selectionStart = startPos + 1;
+          textareaRef.current.selectionEnd = startPos + 1;
+        }
+      }, 0);
     }
-  };
-
-  const handleEmojiClick = (emojiData: EmojiClickData) => {
-    if(!textareaRef.current) {
-      return;
-    }
-    const textarea = textareaRef.current;
-    const startPos = textarea.selectionStart;
-    const endPos = textarea.selectionEnd;
-
-    textarea.value = `${textarea.value.substring(0, startPos)}\n${textarea.value.substring(endPos)}`;
-
-    textarea.selectionStart = startPos + emojiData.emoji.length;
-    textarea.selectionEnd = endPos + emojiData.emoji.length;
-
-    adjustTextareaRef();
   };
 
   return (
-    <div className="form_container" ref={dropdwonShowEmojiPicker.dropdownRef}>
-      <form action="" className="send-message__form">
+    <div className="form_container">
+      <form className="send-message__form" onSubmit={handleSubmit}>
         <textarea
           ref={textareaRef}
           className="send-message__input"
-          placeholder='Написать сообщение...'
+          value={commentData.content}
+          name='content'
+          placeholder={editingComment ? 'Редактирование сообщения...' : 'Написать сообщение...'}
           onKeyDown={handleKeyDown}
+          onChange={handleInputChange}
           rows={1}
         />
-        <button
-          type="button"
-          className="emoji-button"
-          onClick={dropdwonShowEmojiPicker.toggleDropdown}
-        >
-          <img
-            className="send-message__img-emoji"
-            src="../img/emoji.png"
-            alt="Emoji"
-          />
-        </button>
-        <img className='send-message__img' src="../img/send.png" alt=""/>
+        {editingComment ? (
+          <div className="edit-actions">
+            <button
+              type="button"
+              className="cancel-edit"
+              onClick={onCancelEdit}
+            >
+              Отмена
+            </button>
+            <button type="submit" className="send-message__button">
+              <img className='send-message__img' src="../img/save.png" alt="Сохранить"/>
+            </button>
+          </div>
+        ) : (
+          <button type="submit" className="send-message__button">
+            <img className='send-message__img' src="../img/send.png" alt="Отправить"/>
+          </button>
+        )}
       </form>
-
-      {dropdwonShowEmojiPicker.isOpen && (
-        <div className="emoji-picker-wrapper">
-          <EmojiPicker
-            onEmojiClick={handleEmojiClick}
-            width="calc((1vw + 1vh) * 13)"
-            height="calc((1vw + 1vh) * 12)"
-            previewConfig={{ showPreview: false }}
-          />
-        </div>
-      )}
     </div>
   );
 }

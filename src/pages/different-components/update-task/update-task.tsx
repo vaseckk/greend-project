@@ -4,11 +4,15 @@ import Header from '../../pages-components/header/header.tsx';
 import SearchFor from '../../pages-components/search-for/search-for.tsx';
 import {PriorityType, TaskType, StoryPoint, TimeEstimationData} from '../../../types/types.ts';
 import {useAppDispatch, useAppSelector} from '../../../hooks';
-import {generatePath, useNavigate} from 'react-router-dom';
+import {generatePath, useLocation, useNavigate, useParams} from 'react-router-dom';
 import {getProjectInfo, getTagsProject} from '../../../store/project-slice/project-selector.ts';
 import {ChangeEvent, FormEvent, useEffect, useState} from 'react';
-import {createTask, getAllSprints} from '../../../store/api-actions.ts';
-import {ALLOWED_STORY_POINTS, AppRoute, TIME_UNITS} from '../../../const.ts';
+import {
+  getAllSprints,
+  getTaskBySimpleId,
+  updateTask
+} from '../../../store/api-actions.ts';
+import {ALLOWED_STORY_POINTS, AppRoute, CreationStatus, TIME_UNITS} from '../../../const.ts';
 import {useDropdownInput} from '../../../hooks/use-dropdown-input/use-dropdown-input.ts';
 import UsersSelectSubtask from '../../pages-components/users-select-subtask/users-select-subtask.tsx';
 import {getAllSprintsSelector} from '../../../store/sprint-slice/sprint-selector.ts';
@@ -17,16 +21,25 @@ import {getCurrentTask} from '../../../store/task-slice/task-selector.ts';
 
 const PRIORITY_OPTIONS: PriorityType[] = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'TRIVIAL'];
 
-function NewTaskStory(): JSX.Element {
+type UpdateTaskProps = {
+  taskType?: 'EPIC' | 'STORY' | 'SUBTASK' | 'DEFECT';
+};
+
+function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
+  const {simpleId} = useParams();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { state } = useLocation() as { state: { taskType?: 'EPIC' | 'STORY' | 'SUBTASK' | 'DEFECT'} };
+  const locationTaskType = (state as { taskType?: 'EPIC' | 'STORY' | 'SUBTASK' | 'DEFECT' })?.taskType;
+  const taskType = locationTaskType || propsTaskType || 'EPIC';
 
-  const currentEpic = useAppSelector(getCurrentTask);
   const dropdownPriority = useDropdownInput(PRIORITY_OPTIONS);
   const currentProject = useAppSelector(getProjectInfo);
-  const projectId = currentProject?.id;
+  const currentTask = useAppSelector(getCurrentTask);
+  const [status, setStatus] = useState<CreationStatus>(CreationStatus.Idle);
 
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const projectId = currentProject?.id;
 
   const allSprints = useAppSelector(getAllSprintsSelector);
   const sprintsNames = allSprints.map((sprint) => sprint.name);
@@ -40,14 +53,13 @@ function NewTaskStory(): JSX.Element {
     {amount: 0, timeUnit: 'HOURS'}
   );
 
-  const [EpicData, setEpicData] = useState({
+  const [taskData, setTaskData] = useState({
     name: '',
     description: '',
-    type: 'STORY' as TaskType,
+    type: taskType as TaskType,
     priority: 'MAJOR' as PriorityType,
     storyPoints: 1 as StoryPoint,
     assigneeId: '',
-    epicTaskId: currentEpic?.id || '',
     reviewerId: '',
     sprintId: '',
     dueDate: '',
@@ -56,29 +68,96 @@ function NewTaskStory(): JSX.Element {
       timeUnit: TIME_UNITS[5],
       amount: 0,
     },
+    tagsIds: [] as string[],
   });
+
+  // Получаем правильный текст для типа задачи
+  const getTaskTypeText = () => {
+    switch (taskType) {
+      case 'EPIC': return 'Epic';
+      case 'STORY': return 'Story';
+      case 'SUBTASK': return 'Subtask';
+      default: return 'Task';
+    }
+  };
+
+  useEffect(() => {
+    if (simpleId) {
+      dispatch(getTaskBySimpleId(simpleId));
+    }
+  }, [simpleId, dispatch]);
+
+  useEffect(() => {
+    if (currentTask) {
+      setTaskData({
+        name: currentTask.name,
+        description: currentTask.description,
+        type: taskType as TaskType,
+        priority: currentTask.priority.code as PriorityType,
+        storyPoints: currentTask.storyPoints as StoryPoint,
+        assigneeId: currentTask.assignee?.id || '',
+        reviewerId: currentTask.reviewer?.id || '',
+        sprintId: currentTask.sprint?.id || '',
+        dueDate: currentTask.dueDate,
+        projectId: currentProject?.id || '',
+        timeEstimation: {
+          timeUnit: TIME_UNITS[5],
+          amount: currentTask.timeEstimation?.amount || 0,
+        },
+        tagsIds: currentTask.tags?.map((tag) => tag.id) || [],
+      });
+
+      setSelectedTagIds(currentTask.tags?.map((tag) => tag.id) || []);
+
+      setTimeEstimations({
+        amount: currentTask.timeEstimation?.amount || 0,
+        timeUnit: currentTask.timeEstimation?.timeUnit || 'HOURS'
+      });
+
+      if (currentTask.sprint) {
+        dropdownSprint.handleItemSelect(currentTask.sprint.name);
+      }
+    }
+  }, [currentTask, taskType]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setEpicData({
-      ...EpicData,
+    setTaskData({
+      ...taskData,
       [name]: value,
     });
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => { // ← Добавлено async
     e.preventDefault();
-    if (!currentProject?.id) {
+    if (!currentProject?.id || !simpleId) {
       return;
     }
 
-    dispatch(createTask(EpicData))
-      .then((action) => {
-        if (createTask.fulfilled.match(action)) {
-          const path = generatePath(`${AppRoute.Story}`, { id: action.payload.simpleId });
-          navigate(path);
+    try {
+      await dispatch(updateTask({
+        simpleId: simpleId || '',
+        data: {
+          name: taskData.name,
+          description: taskData.description,
+          type: taskData.type,
+          priority: taskData.priority,
+          storyPoints: taskData.storyPoints,
+          assigneeId: taskData.assigneeId,
+          reviewerId: taskData.reviewerId,
+          sprintId: taskData.sprintId,
+          dueDate: taskData.dueDate,
+          timeEstimation: taskData.timeEstimation,
+          tagIds: selectedTagIds,
         }
-      });
+      })).unwrap();
+
+      setStatus(CreationStatus.Created);
+      const path = generatePath(`${AppRoute.Epic}`, { id: simpleId });
+      navigate(path);
+    } catch (err) {
+      setStatus(CreationStatus.Failed);
+    }
   };
 
   const handleTimeEstimationChange = (field: keyof TimeEstimationData, value: string | number) => {
@@ -96,16 +175,15 @@ function NewTaskStory(): JSX.Element {
     dropdownTags.handleItemSelect(tagName);
   };
 
-
   useEffect(() => {
-    setEpicData((prev) => ({
+    setTaskData((prev) => ({
       ...prev,
       priority: dropdownPriority.inputValue as PriorityType
     }));
   }, [dropdownPriority.inputValue]);
 
   useEffect(() => {
-    setEpicData((prev) => ({
+    setTaskData((prev) => ({
       ...prev,
       timeEstimation: {
         amount: Number(timeEstimations.amount) || 0,
@@ -117,7 +195,7 @@ function NewTaskStory(): JSX.Element {
   }, [timeEstimations]);
 
   useEffect(() => {
-    setEpicData((prev) => ({
+    setTaskData((prev) => ({
       ...prev,
       tagsIds: selectedTagIds
     }));
@@ -125,14 +203,18 @@ function NewTaskStory(): JSX.Element {
 
   useEffect(() => {
     if (projectId) {
-      dispatch(getAllSprints({projectId})); // Передаём объект { projectId: string }
+      dispatch(getAllSprints({ projectId }));
     }
   }, [projectId, dispatch]);
+
+  if (!currentTask) {
+    return <div>Загрузка данных {getTaskTypeText()}...</div>;
+  }
 
   return (
     <div className="page__main">
       <Helmet>
-        <title>Greend: Создание Story</title>
+        <title>{`Greend: Редактирование ${getTaskTypeText()}`}</title>
       </Helmet>
       <div className="page__main__parametres">
         <article className="page__main-sideber">
@@ -155,7 +237,7 @@ function NewTaskStory(): JSX.Element {
                     <article className="task-basic_title">
                       <div className="task-basic_title_container">
                         <h1 className="task-basic_title_name">
-                          Создание новой Story в Эпике {currentEpic?.name}
+                          Редактирование {getTaskTypeText()} в проекте {currentProject?.name}
                         </h1>
                       </div>
                     </article>
@@ -167,7 +249,7 @@ function NewTaskStory(): JSX.Element {
                           <input
                             name="name"
                             placeholder='Впишите название задачи'
-                            value={EpicData.name}
+                            value={taskData.name}
                             onChange={handleInputChange}
                             required
                           />
@@ -182,7 +264,7 @@ function NewTaskStory(): JSX.Element {
                           <input
                             type="date"
                             name="dueDate"
-                            value={EpicData.dueDate}
+                            value={taskData.dueDate}
                             onChange={handleInputChange}
                           />
                         </div>
@@ -292,10 +374,10 @@ function NewTaskStory(): JSX.Element {
                                     key={sprint.id}
                                     onClick={() => {
                                       dispatch(setCurrentSprint(sprint));
-                                      dropdownSprint.handleItemSelect(sprint.name); // Устанавливаем имя для отображения
-                                      setEpicData((prev) => ({
+                                      dropdownSprint.handleItemSelect(sprint.name);
+                                      setTaskData((prev) => ({
                                         ...prev,
-                                        sprintId: sprint.id // Устанавливаем id спринта
+                                        sprintId: sprint.id
                                       }));
                                       dropdownSprint.toggleDropdown();
                                     }}
@@ -350,8 +432,8 @@ function NewTaskStory(): JSX.Element {
                         <UsersSelectSubtask
                           users={currentProject?.users || []}
                           placeholder="Выберите исполнителя"
-                          onSelect={(userId) => setEpicData({...EpicData, assigneeId: userId})}
-                          initialValue={EpicData.assigneeId}
+                          onSelect={(userId) => setTaskData({...taskData, assigneeId: userId})}
+                          initialValue={taskData.assigneeId}
                         />
                       </div>
 
@@ -360,23 +442,22 @@ function NewTaskStory(): JSX.Element {
                         <UsersSelectSubtask
                           users={currentProject?.users || []}
                           placeholder="Выберите ревьюера"
-                          onSelect={(userId) => setEpicData({...EpicData, reviewerId: userId})}
-                          initialValue={EpicData.reviewerId}
+                          onSelect={(userId) => setTaskData({...taskData, reviewerId: userId})}
+                          initialValue={taskData.reviewerId}
                         />
                       </div>
-
                     </article>
 
                     <article className="story-points">
                       <p>Выберите story points</p>
                       <div className="story-points_container">
                         <select
-                          value={EpicData.storyPoints}
+                          value={taskData.storyPoints}
                           onChange={(e) => {
-                            const value = parseInt(e.target.value, 10); // Добавляем radix
-                            setEpicData({
-                              ...EpicData,
-                              storyPoints: value as StoryPoint, // Приводим тип
+                            const value = parseInt(e.target.value, 10);
+                            setTaskData({
+                              ...taskData,
+                              storyPoints: value as StoryPoint,
                             });
                           }}
                           required
@@ -394,13 +475,23 @@ function NewTaskStory(): JSX.Element {
                       <div className="task-basic_description_container">
                         <textarea
                           name="description"
-                          value={EpicData.description}
+                          value={taskData.description}
                           onChange={handleInputChange}
                         />
                       </div>
                     </article>
 
-                    <button type="submit" className='create-task__button'>Создать</button>
+                    <button
+                      className='create-task__button'
+                      type='submit'
+                      disabled={status === CreationStatus.Creating}
+                    >
+                      <p>
+                        {status === CreationStatus.Creating
+                          ? 'Обновление...'
+                          : 'Обновить проект'}
+                      </p>
+                    </button>
                   </section>
                 </section>
               </form>
@@ -412,4 +503,4 @@ function NewTaskStory(): JSX.Element {
   );
 }
 
-export default NewTaskStory;
+export default UpdateTask;

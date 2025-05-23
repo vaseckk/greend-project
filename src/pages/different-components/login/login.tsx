@@ -248,7 +248,9 @@ function Login(): JSX.Element {
     codeStatus === CodeStatus.Verifying ||
     codeStatus === CodeStatus.Verified;
 
-  const showLoginForm = authStatus === AuthorizationStatus.Auth;
+  const showLoginForm =
+    authStatus === AuthorizationStatus.Auth ||
+    codeStatus === CodeStatus.Verified;
   const showSendCodeForm = !showVerificationForm && !showLoginForm;
 
   return (

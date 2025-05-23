@@ -59,7 +59,9 @@
 
 .project_title {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   border: solid $accent;
   border-width: 0 0 1px 0;
 }

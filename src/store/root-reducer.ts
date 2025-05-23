@@ -8,6 +8,7 @@ import {filterReducer} from './filter-slice/filter-slice.ts';
 import {taskReducer} from './task-slice/task-slice.ts';
 import {notificationsReducer} from './notifications-slice/notifictaions-slice.ts';
 import {sprintReducer} from './sprint-slice/sprint-slice.ts';
+import {commentReducer} from './comments-slice/comments-slice.ts';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   task: taskReducer,
   notifications: notificationsReducer,
   sprint: sprintReducer,
+  comment: commentReducer,
 });
 
 export default rootReducer;

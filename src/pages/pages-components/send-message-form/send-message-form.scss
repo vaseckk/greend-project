@@ -34,10 +34,6 @@
     min-height: calc($index * 0.5);
     margin: 5px;
   }
-
-  img {
-
-  }
 }
 
 .send-message__input {
@@ -64,8 +60,14 @@
   object-fit: contain;
 }
 
+.send-message__button {
+  background-color: $buttonColor;
+  border: none;
+  outline: none;
+}
+
 .send-message__img {
-  width: calc($index * 1.4);
+  width: calc($index * 0.8);
   margin-right: 5px;
   padding: 0;
   cursor: pointer;
@@ -76,14 +78,13 @@
   border: none;
   cursor: pointer;
   padding: 0;
-  margin-right: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .send-message__img-emoji {
-  width: calc($index * 1.2); // Фиксированная ширина
+  width: calc($index * 0.8); // Фиксированная ширина
   height: calc($index * 1.2); // Фиксированная высота
   object-fit: contain; // Сохраняет пропорции
 }

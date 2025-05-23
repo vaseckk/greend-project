@@ -2,17 +2,64 @@ import Sidebar from '../../pages-components/sidebar/sidebar.tsx';
 import Header from '../../pages-components/header/header.tsx';
 import './epic-story.scss';
 import SearchFor from '../../pages-components/search-for/search-for.tsx';
-import useDropdownButton from '../../../hooks/use-dropdown-button/use-dropdown-button.ts';
 import {Helmet} from 'react-helmet-async';
+import {generatePath, Link, useNavigate, useParams} from 'react-router-dom';
+import {useAppDispatch, useAppSelector} from '../../../hooks';
+import {getCurrentTask} from '../../../store/task-slice/task-selector.ts';
+import {useEffect} from 'react';
+import {getAllComments, getTaskBySimpleId} from '../../../store/api-actions.ts';
+import {AppRoute} from '../../../const.ts';
+import TaskContent from '../../pages-components/task-content/task-content.tsx';
+import {getProjectInfo} from '../../../store/project-slice/project-selector.ts';
 
 function EpicStory(): JSX.Element {
-  const dropdownDescription = useDropdownButton();
-  const dropdownEpicStory = useDropdownButton();
+  const {id} = useParams<{
+    id: string;
+  }>();
+  const dispatch = useAppDispatch();
+  const currentTask = useAppSelector(getCurrentTask);
+  const navigate = useNavigate();
+  const currentProject = useAppSelector(getProjectInfo);
+
+  const projectId = currentProject?.id;
+  const simpleId = currentTask?.simpleId;
+
+  const handleAddStory = () => {
+    if (!currentTask?.id || !currentProject?.id) {
+      return;
+    }
+
+    const path = generatePath(`${AppRoute.NewTaskStory}/:epicId`, {
+      epicId: currentTask.id
+    });
+
+    navigate(path, {
+      state: {
+        projectId: currentProject.id
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getTaskBySimpleId(id));
+    }
+  }, [id, dispatch]);
+
+  useEffect(() => {
+    if (projectId && simpleId) {
+      dispatch(getAllComments({ projectId,simpleId })); // Передаём один объект
+    }
+  }, [projectId, simpleId, dispatch]);
+
+  if (!currentTask) {
+    return <div className="loading">Загрузка Epic...</div>;
+  }
 
   return (
     <div className="page__main">
       <Helmet>
-        <title>Greend: Epic Story</title>
+        <title>{`Greend: Epic ${currentTask.name}`}</title>
       </Helmet>
       <div className="page__main__parametres">
         <article className="page__main-sideber">
@@ -31,150 +78,34 @@ function EpicStory(): JSX.Element {
             <div className="project">
               <section className="project_information">
                 <div className="project_parametres">
-                  <article className="project_title">
-                    <div className="project_title_parametres">
-                      <h1 className="project_title_name">Проект Greend:</h1>
-                      <p className="project_title_description">Разработка платформ для онлайн обучения</p>
+                  <article className="project_title--epic">
+                    <div className="project_title_info">
+                      <div className="project_title_parametres">
+                        <h1 className="project_title_name">Epic:</h1>
+                        <p className="project_title_description"> {currentTask.name}</p>
+                      </div>
+                      <div className="project_title_creator">
+                        <p>Создал(а) {currentTask.creator?.firstName} {currentTask.creator?.lastName}</p>
+                      </div>
                     </div>
-                    <div className="project_title_creator">
-                      <p>Создал(а) Васина Анастасия Александровна</p>
+                    <div className="new-task__link">
+                      <button className="new-task" onClick={handleAddStory}>
+                        Создать Story
+                      </button>
                     </div>
-                  </article>
 
-                  <article className="project_description" ref={dropdownDescription.dropdownRef}>
-                    <div className="project_details_title project_description"
-                      onClick={dropdownDescription.toggleDropdown}
+                    <Link
+                      to={generatePath(AppRoute.Edit, { id: currentTask.simpleId })}
+                      state={{ taskType: 'EPIC' }} // Передаём тип задачи
+                      className="edit-project"
                     >
-                      <img src="../img/chevron_right.png" alt=""
-                        style={{transform: dropdownDescription.isOpen ? 'rotate(90deg)' : 'none'}}
-                      />
-                      <p>Описание</p>
-                    </div>
-                    {dropdownDescription.isOpen && (
-                      <div className="project_details_content project_description">
-                        <ul>
-                          <li>
-                            <p className="project_details_value project_description">Наша платформа активно растет, и
-                              текущая архитектура начинает показывать признаки перегрузки. Количество пользователей
-                              выросло
-                              до 1 млн активных пользователей в день, и прогнозируется, что это число достигнет 10 млн в
-                              ближайшие 12 месяцев. Текущая система не справляется с нагрузкой: наблюдаются задержки в
-                              обработке
-                              запросов, частые сбои сервисов и высокая нагрузка на базу данных. Это приводит к ухудшению
-                              пользовательского
-                              опыта и потере клиентов.
-                            </p>
-                          </li>
-                        </ul>
-                      </div>
-                    )}
+                      <button className="edit-project__button">
+                        <img src="../img/edit_square.png" alt="редактировать"/>
+                      </button>
+                    </Link>
                   </article>
 
-                  <article className="project_epic-story" ref={dropdownEpicStory.dropdownRef}>
-                    <div className="task epic-story">
-                      <div className="task_parametres epic-story_parametres">
-                        <div className="project_details_title project_description"
-                          onClick={dropdownEpicStory.toggleDropdown}
-                        >
-                          <img src="../img/chevron_right.png" alt=""
-                            style={{transform: dropdownEpicStory.isOpen ? 'rotate(90deg)' : 'none'}}
-                          />
-                          <p>Story</p>
-                        </div>
-
-                        {dropdownEpicStory.isOpen && (
-                          <button className="task_button epic-story__button">
-                            <div className="task__element epic-story__element">
-                              <div className="task__element-title epic-story__element-title">
-                                <h1>GD-1:</h1>
-                                <p>Изменить возвращаемую ошибку при срабатывание лимитов</p>
-                              </div>
-                              <div className="task__element-information">
-                                <div className="task__element-executor epic-story__element-executor">
-                                  <p>Исполнитель: </p>
-                                </div>
-                                <div className="task__element-status epic-story__element-status">
-                                  <p>Общий статус: </p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="task__element epic-story__element">
-                              <div className="task__element-title epic-story__element-title">
-                                <h1>GD-1:</h1>
-                                <p>Изменить возвращаемую ошибку при срабатывание лимитов</p>
-                              </div>
-                              <div className="task__element-information">
-                                <div className="task__element-executor epic-story__element-executor">
-                                  <p>Исполнитель: </p>
-                                </div>
-                                <div className="task__element-status epic-story__element-status">
-                                  <p>Общий статус: </p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="task__element epic-story__element">
-                              <div className="task__element-title epic-story__element-title">
-                                <h1>GD-1:</h1>
-                                <p>Изменить возвращаемую ошибку при срабатывание лимитов</p>
-                              </div>
-                              <div className="task__element-information">
-                                <div className="task__element-executor epic-story__element-executor">
-                                  <p>Исполнитель: </p>
-                                </div>
-                                <div className="task__element-status epic-story__element-status">
-                                  <p>Общий статус: </p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="task__element epic-story__element">
-                              <div className="task__element-title epic-story__element-title">
-                                <h1>GD-1:</h1>
-                                <p>Изменить возвращаемую ошибку при срабатывание лимитов</p>
-                              </div>
-                              <div className="task__element-information">
-                                <div className="task__element-executor epic-story__element-executor">
-                                  <p>Исполнитель: </p>
-                                </div>
-                                <div className="task__element-status epic-story__element-status">
-                                  <p>Общий статус: </p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="task__element epic-story__element">
-                              <div className="task__element-title epic-story__element-title">
-                                <h1>GD-1:</h1>
-                                <p>Изменить возвращаемую ошибку при срабатывание лимитов</p>
-                              </div>
-                              <div className="task__element-information">
-                                <div className="task__element-executor epic-story__element-executor">
-                                  <p>Исполнитель: </p>
-                                </div>
-                                <div className="task__element-status epic-story__element-status">
-                                  <p>Общий статус: </p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="task__element epic-story__element">
-                              <div className="task__element-title epic-story__element-title">
-                                <h1>GD-1:</h1>
-                                <p>Изменить возвращаемую ошибку при срабатывание лимитов</p>
-                              </div>
-                              <div className="task__element-information">
-                                <div className="task__element-executor epic-story__element-executor">
-                                  <p>Исполнитель: </p>
-                                </div>
-                                <div className="task__element-status epic-story__element-status">
-                                  <p>Общий статус: </p>
-                                </div>
-                              </div>
-                            </div>
-
-                          </button>
-                        )}
-
-                      </div>
-                    </div>
-                  </article>
+                  <TaskContent task={currentTask} taskSimpleId={currentTask.simpleId}/>
                 </div>
               </section>
             </div>

@@ -1,7 +1,11 @@
-const ACCESS_TOKEN_KEY = 'greend-access-token';
+export const ACCESS_TOKEN_KEY = 'greend-access-token';
 const REFRESH_TOKEN_KEY = 'greend-refresh-token';
 
-const ensureBearer = (token: string): string => token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+const BEARER_PREFIX = 'Bearer ';
+const BEARER_PREFIX_REGEX = /^Bearer\s+/i;
+
+const ensureBearer = (token: string): string =>
+  token.startsWith(BEARER_PREFIX) ? token : `${BEARER_PREFIX}${token}`;
 
 export const getAccessToken = (): string => {
   const token = localStorage.getItem(ACCESS_TOKEN_KEY) || '';
@@ -9,20 +13,20 @@ export const getAccessToken = (): string => {
 };
 
 export const saveAccessToken = (token: string): void => {
-  localStorage.setItem(ACCESS_TOKEN_KEY, token);
+  // Очищаем от Bearer перед сохранением
+  const cleanToken = token.replace(BEARER_PREFIX_REGEX, '');
+  localStorage.setItem(ACCESS_TOKEN_KEY, cleanToken);
 };
 
-// Refresh Token (аналогично)
 export const getRefreshToken = (): string => {
-  const token = localStorage.getItem(REFRESH_TOKEN_KEY) || '';
-  return ensureBearer(token);
+  return localStorage.getItem(REFRESH_TOKEN_KEY) || '';
 };
 
 export const saveRefreshToken = (token: string): void => {
-  localStorage.setItem(REFRESH_TOKEN_KEY, token);
+  const cleanToken = token.replace(BEARER_PREFIX_REGEX, '');
+  localStorage.setItem(REFRESH_TOKEN_KEY, cleanToken);
 };
 
-// Удаление токенов (без изменений)
 export const dropTokens = (): void => {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);

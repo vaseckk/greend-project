@@ -443,6 +443,21 @@ export interface CommentState {
   loading: boolean;
 }
 
-export interface LocationState {
-  projectId?: string;
-}
+export type UpdateTaskRequestData = {
+  name: string;
+  description: string;
+  type: TaskType;
+  priority: PriorityType;
+  storyPoints: number;
+  assigneeId?: string;
+  reviewerId?: string;
+  sprintId?: string;
+  dueDate?: string;
+  timeEstimation?: TimeEstimationData;
+  tagIds?: string[];
+  projectId: string;
+} & (
+  | { type: 'STORY'; epicTaskId?: string }
+  | { type: 'SUBTASK' | 'DEFECT'; storyTaskId?: string }
+  | { type: 'EPIC' }
+  );

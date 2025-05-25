@@ -1,4 +1,5 @@
 import {StatusCodes} from 'http-status-codes';
+import {Statuses} from './types/types.ts';
 
 export const MAX_LENGTH_SHOW_TAGS = 4;
 export const MIN_LENGTH_SHOW_TAGS = 0;
@@ -18,6 +19,7 @@ export enum AppRoute {
   NewTask = '/task',
   NewTaskStory = '/newStory',
   NewTaskSubtask = '/newSubtask',
+  NewDefect = '/newDefect',
   NewProject = '/newProject',
   Edit = '/:id/edit',
   EditStory = '/story/:id/edit',
@@ -30,7 +32,8 @@ export enum AppRoute {
   Story = '/story/:id',
   Project = '/project/:id',
   AllProjects = '/allProjects',
-  Task = '/task/task',
+  Task = '/task/:id',
+  Defect = '/defect/:id',
   Login = '/login',
   NotFound = '*'
 }
@@ -140,3 +143,33 @@ export const TelegramAuthRoute = [
   APIRoute.VerifyCodeApi,
   APIRoute.SendCodeApi,
 ];
+
+export const statuses: Statuses[] = [
+  'OPEN',
+  'IN_PROGRESS',
+  'REVIEW',
+  'RESOLVED',
+  'QA_READY',
+  'IN_QA',
+  'CLOSED'
+];
+
+export const statusLabels = {
+  OPEN: 'Открыта',
+  IN_PROGRESS: 'Готова к реализации',
+  REVIEW: 'В работе',
+  RESOLVED: 'На ревью',
+  QA_READY: 'Ревью пройдено',
+  IN_QA: 'На тестировании',
+  CLOSED: 'Завершена'
+};
+
+export const StatusPriority = {
+  BLOCKER: 'Высший',
+  CRITICAL: 'Критический',
+  MAJOR: 'Высокий',
+  MINOR: 'Средний',
+  TRIVIAL: 'Низкий'
+} as const;
+
+export const STATUSES_LIST: Statuses[] = ['OPEN', 'IN_PROGRESS', 'REVIEW', 'RESOLVED', 'QA_READY', 'IN_QA', 'CLOSED'];

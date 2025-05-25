@@ -18,13 +18,19 @@
     margin: 0 calc($index * 0.2);
   }
 
-  h1 {
-    font-weight: 400;
-    font-size: calc($index * 0.7);
-    margin-right: calc($index * 0.5);
+  .link-story {
+    text-decoration: none;
+    color: $borderColor;
+
+    h1 {
+      font-weight: 400;
+      font-size: calc($index * 0.7);
+      margin-right: calc($index * 0.5);
+    }
   }
 
   p {
+    color: $borderColor;
     opacity: .7;
     font-size: calc($index * 0.6);
   }
@@ -43,6 +49,12 @@ th, tr {
   padding: 10px;
   border: solid $accent;
   border-width: 1px 1px 1px 0;
+}
+
+.story-container {
+  Link {
+    text-decoration: none;
+  }
 }
 
 .content-story {
@@ -70,7 +82,7 @@ th, tr {
   height: auto;
   font-family: $userfont;
   margin-top: calc($index * 0.5);
-  justify-content: flex-start;
+  justify-content: space-between;
   box-sizing: border-box;
   align-items: center;
 
@@ -81,12 +93,16 @@ th, tr {
 }
 
 .count-time-span {
-  background-color: $countTime;
+  background-color: $accent;
   border-radius: 15px;
 }
 
 .count-time {
   margin-left: calc($index * 0.4);
   margin-right: calc($index * 0.4);
+  font-size: calc($index * 0.5);
+  font-family: $userfont;
+  font-weight: 350;
+  color: $textcolor;
   opacity: .8;
 }

@@ -6,10 +6,12 @@ import {Helmet} from 'react-helmet-async';
 import {generatePath, Link, useParams} from 'react-router-dom';
 import {useAppDispatch, useAppSelector} from '../../../hooks';
 import {getCurrentTask} from '../../../store/task-slice/task-selector.ts';
-import {AppRoute} from '../../../const.ts';
-import {useEffect} from 'react';
-import {getTaskBySimpleId} from '../../../store/api-actions.ts';
+import {AppRoute, STATUSES_LIST} from '../../../const.ts';
+import {FormEvent, useEffect, useMemo} from 'react';
+import {getTaskBySimpleId, updateTaskStatus} from '../../../store/api-actions.ts';
 import TaskContent from '../../pages-components/task-content/task-content.tsx';
+import {useDropdownInput} from '../../../hooks/use-dropdown-input/use-dropdown-input.ts';
+import {Statuses} from '../../../types/types.ts';
 
 function Task(): JSX.Element {
   const {id} = useParams<{
@@ -17,6 +19,37 @@ function Task(): JSX.Element {
   }>();
   const dispatch = useAppDispatch();
   const currentTask = useAppSelector(getCurrentTask);
+
+  const statusOptions = useMemo(() =>
+    STATUSES_LIST.map((status) => ({
+      code: status.toUpperCase().replace(/\s+/g, '_'),
+      value: status
+    })), []);
+
+  const dropdownStatus = useDropdownInput(statusOptions.map((option) => option.value));
+
+  const selectedStatus = useMemo(() =>
+    statusOptions.find((option) => option.value === dropdownStatus.inputValue),
+  [dropdownStatus.inputValue, statusOptions]
+  );
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!currentTask?.simpleId || !selectedStatus?.code) {
+      return;
+    }
+
+    dispatch(updateTaskStatus({
+      simpleId: currentTask.simpleId,
+      data:  { status: selectedStatus.code as Statuses }
+    }));
+  };
+
+  useEffect(() => {
+    if (currentTask?.status) {
+      dropdownStatus.handleItemSelect(currentTask.status.value as Statuses);
+    }
+  }, [currentTask?.status]);
 
   useEffect(() => {
     if (id) {
@@ -61,9 +94,59 @@ function Task(): JSX.Element {
                       </div>
                     </div>
 
+
+                    <form onSubmit={handleSubmit} className="task-basic_type_container">
+                      <p>Статус</p>
+                      <div ref={dropdownStatus.dropdownRef} className="dropdown-container">
+                        <input
+                          type="text"
+                          value={dropdownStatus.inputValue}
+                          onChange={dropdownStatus.handleInputChange}
+                          onClick={dropdownStatus.toggleDropdown}
+                          placeholder="Выберите статус"
+                          className="status-input"
+                        />
+                        <button
+                          type="button"
+                          className="task-basic_type-choose"
+                          onClick={dropdownStatus.toggleDropdown}
+                        >
+                          <img src="../img/chevron.png" alt=""/>
+                        </button>
+
+                        {dropdownStatus.isOpen && (
+                          <div className="choose-project">
+                            <ul>
+                              {dropdownStatus.items.map((item) => {
+                                const option = statusOptions.find((opt) => opt.value === item);
+                                return (
+                                  <li
+                                    key={option?.code || item}
+                                    onClick={() => dropdownStatus.handleItemSelect(item)}
+                                  >
+                                    {item}
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="submit"
+                        className="save-status-button"
+                        disabled={
+                          !selectedStatus?.code ||
+                          selectedStatus.code === currentTask.status.code
+                        }
+                      >
+                        Сохранить статус
+                      </button>
+                    </form>
+
                     <Link
-                      to={generatePath(AppRoute.Edit, { id: currentTask.simpleId })}
-                      state={{ taskType: 'SUBTASK' }} // Передаём тип задачи
+                      to={generatePath(AppRoute.Edit, {id: currentTask.simpleId})}
+                      state={{taskType: 'SUBTASK'}} // Передаём тип задачи
                       className="edit-project"
                     >
                       <button className="edit-project__button">
@@ -72,7 +155,7 @@ function Task(): JSX.Element {
                     </Link>
                   </article>
 
-                  <TaskContent task={currentTask} taskSimpleId={currentTask.simpleId} />
+                  <TaskContent task={currentTask} taskSimpleId={currentTask.simpleId}/>
                 </div>
               </section>
             </div>

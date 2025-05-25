@@ -105,7 +105,7 @@ function TaskContent({ task, taskSimpleId }: TaskContentProps): JSX.Element {
                 alt=""
                 style={{ transform: dropdwonParticipal.isOpen ? 'rotate(90deg)' : 'none' }}
               />
-              <p>Участвующие в проекте</p>
+              <p>Пользователи</p>
             </div>
             {dropdwonParticipal.isOpen && (
               <div className="task-additional_content project_description">

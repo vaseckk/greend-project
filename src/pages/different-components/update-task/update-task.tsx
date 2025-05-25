@@ -2,7 +2,7 @@ import {Helmet} from 'react-helmet-async';
 import Sidebar from '../../pages-components/sidebar/sidebar.tsx';
 import Header from '../../pages-components/header/header.tsx';
 import SearchFor from '../../pages-components/search-for/search-for.tsx';
-import {PriorityType, TaskType, StoryPoint, TimeEstimationData} from '../../../types/types.ts';
+import {PriorityType, TaskType, StoryPoint, TimeEstimationData, UpdateTaskRequestData} from '../../../types/types.ts';
 import {useAppDispatch, useAppSelector} from '../../../hooks';
 import {generatePath, useLocation, useNavigate, useParams} from 'react-router-dom';
 import {getProjectInfo, getTagsProject} from '../../../store/project-slice/project-selector.ts';
@@ -12,7 +12,7 @@ import {
   getTaskBySimpleId,
   updateTask
 } from '../../../store/api-actions.ts';
-import {ALLOWED_STORY_POINTS, AppRoute, CreationStatus, TIME_UNITS} from '../../../const.ts';
+import {ALLOWED_STORY_POINTS, AppRoute, TIME_UNITS} from '../../../const.ts';
 import {useDropdownInput} from '../../../hooks/use-dropdown-input/use-dropdown-input.ts';
 import UsersSelectSubtask from '../../pages-components/users-select-subtask/users-select-subtask.tsx';
 import {getAllSprintsSelector} from '../../../store/sprint-slice/sprint-selector.ts';
@@ -36,7 +36,6 @@ function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
   const dropdownPriority = useDropdownInput(PRIORITY_OPTIONS);
   const currentProject = useAppSelector(getProjectInfo);
   const currentTask = useAppSelector(getCurrentTask);
-  const [status, setStatus] = useState<CreationStatus>(CreationStatus.Idle);
 
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const projectId = currentProject?.id;
@@ -69,6 +68,8 @@ function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
       amount: 0,
     },
     tagsIds: [] as string[],
+    epicTaskId: '',
+    storyTaskId: '',
   });
 
   // Получаем правильный текст для типа задачи
@@ -78,6 +79,15 @@ function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
       case 'STORY': return 'Story';
       case 'SUBTASK': return 'Subtask';
       default: return 'Task';
+    }
+  };
+
+  const getTaskRoute = () => {
+    switch (taskType) {
+      case 'EPIC': return AppRoute.Epic;
+      case 'STORY': return AppRoute.Story;
+      case 'SUBTASK': return AppRoute.Task;
+      case 'DEFECT': return AppRoute.Defect;
     }
   };
 
@@ -105,6 +115,8 @@ function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
           amount: currentTask.timeEstimation?.amount || 0,
         },
         tagsIds: currentTask.tags?.map((tag) => tag.id) || [],
+        epicTaskId: currentTask.id || '',
+        storyTaskId: currentTask.id || '',
       });
 
       setSelectedTagIds(currentTask.tags?.map((tag) => tag.id) || []);
@@ -128,36 +140,64 @@ function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
     });
   };
 
-  const handleSubmit = async (e: FormEvent) => { // ← Добавлено async
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!currentProject?.id || !simpleId) {
+    if (!currentTask?.id || !currentProject?.id) {
       return;
     }
 
-    try {
-      await dispatch(updateTask({
-        simpleId: simpleId || '',
-        data: {
-          name: taskData.name,
-          description: taskData.description,
-          type: taskData.type,
-          priority: taskData.priority,
-          storyPoints: taskData.storyPoints,
-          assigneeId: taskData.assigneeId,
-          reviewerId: taskData.reviewerId,
-          sprintId: taskData.sprintId,
-          dueDate: taskData.dueDate,
-          timeEstimation: taskData.timeEstimation,
-          tagIds: selectedTagIds,
-        }
-      })).unwrap();
+    // Формируем данные для отправки в зависимости от типа задачи
+    const baseData = {
+      name: taskData.name,
+      description: taskData.description,
+      type: taskType,
+      priority: taskData.priority,
+      storyPoints: taskData.storyPoints,
+      assigneeId: taskData.assigneeId || undefined,
+      reviewerId: taskData.reviewerId || undefined,
+      sprintId: taskData.sprintId || undefined,
+      dueDate: taskData.dueDate || undefined,
+      timeEstimation: taskData.timeEstimation,
+      tagIds: selectedTagIds,
+      projectId: currentProject.id,
+    };
 
-      setStatus(CreationStatus.Created);
-      const path = generatePath(`${AppRoute.Epic}`, { id: simpleId });
-      navigate(path);
-    } catch (err) {
-      setStatus(CreationStatus.Failed);
+    // Формируем данные в зависимости от типа задачи
+    let updateData: UpdateTaskRequestData;
+
+    switch (taskType) {
+      case 'STORY':
+        updateData = {
+          ...baseData,
+          type: 'STORY',
+          epicTaskId: taskData.epicTaskId || undefined,
+        };
+        break;
+
+      case 'SUBTASK':
+      case 'DEFECT':
+        updateData = {
+          ...baseData,
+          type: taskType,
+          storyTaskId: taskData.storyTaskId || undefined,
+        };
+        break;
+
+      case 'EPIC':
+        updateData = {
+          ...baseData,
+          type: 'EPIC',
+        };
+        break;
     }
+
+    dispatch(updateTask({ simpleId: currentTask.id, data: updateData }))
+      .then((action) => {
+        if (updateTask.fulfilled.match(action)) {
+          const path = generatePath(`${getTaskRoute()}`, { id: currentTask.id });
+          navigate(path);
+        }
+      });
   };
 
   const handleTimeEstimationChange = (field: keyof TimeEstimationData, value: string | number) => {
@@ -484,12 +524,9 @@ function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
                     <button
                       className='create-task__button'
                       type='submit'
-                      disabled={status === CreationStatus.Creating}
                     >
                       <p>
-                        {status === CreationStatus.Creating
-                          ? 'Обновление...'
-                          : 'Обновить проект'}
+                        Обновить проект
                       </p>
                     </button>
                   </section>

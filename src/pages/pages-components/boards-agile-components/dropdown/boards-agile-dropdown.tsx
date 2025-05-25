@@ -3,8 +3,8 @@ import './boards-agile-dropdown.scss';
 import {useAppDispatch, useAppSelector} from '../../../../hooks';
 import {getAllProjects, getProjectInfo} from '../../../../store/project-slice/project-selector.ts';
 import {useEffect} from 'react';
-import {fetchProjectsAction, getAllProject, getAllSprints} from '../../../../store/api-actions.ts';
-import {ProjectAllData} from '../../../../types/types.ts';
+import {fetchProjectsAction, getAllProject, getAllSprints, getSprint} from '../../../../store/api-actions.ts';
+import {ProjectAllData, SprintAllData} from '../../../../types/types.ts';
 import {useNavigate} from 'react-router-dom';
 import {APIRoute} from '../../../../const.ts';
 import {getAllSprintsSelector, getCurrentSprint} from '../../../../store/sprint-slice/sprint-selector.ts';
@@ -31,6 +31,16 @@ function BADropdown(): JSX.Element {
     dispatch(getAllSprints({projectId: project.id}));
     dropdownProject.toggleDropdown();
   };
+
+  const handleSprintSelect = (sprint: SprintAllData) => {
+    dispatch(setCurrentSprint(sprint));
+    dispatch(getSprint({
+      projectId: currentProject!.id,
+      sprintId: sprint.id
+    }));
+    dropdownSprint.toggleDropdown();
+  };
+
 
   const handleAddSprintProject = () => {
     if(!currentProject?.id) {
@@ -89,10 +99,7 @@ function BADropdown(): JSX.Element {
                     {allSprints.map((sprint) => (
                       <li
                         key={sprint.id}
-                        onClick={() => {
-                          dispatch(setCurrentSprint(sprint)); // Устанавливаем выбранный спринт
-                          dropdownSprint.toggleDropdown();
-                        }}
+                        onClick={() => handleSprintSelect(sprint)}
                         className={currentSprint?.id === sprint.id ? 'selected' : ''}
                       >
                         {sprint.name}

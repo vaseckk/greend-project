@@ -12,11 +12,7 @@ UseDropdown() {
 
   const handleClickOutside = (evt: MouseEvent) => {
     if(dropdownRef.current && !dropdownRef.current.contains(evt.target as Node)) {
-      //Где current - это указатель на данный элемент, contains - нативный метод js, который смотрит
-      // содержит ли DOM узел данный элемент, evt.target указывает на конкретный элемент, на который был
-      //выполнен клик(допустим если кликнули внутри дпродауна, то evt.target будет указывать на кнопку,
-      // а если нет, то на другой внешний элемент)
-      closeDropdown();//если клик произошёл вне дропдауна, то вызывается эта функция, чтобы закрыть дропдаун
+      closeDropdown();
     }
   };
 

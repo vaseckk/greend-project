@@ -18,6 +18,7 @@ import NewTaskStory from '../../pages/different-components/new-task-story/new-ta
 import Story from '../../pages/different-components/story/story.tsx';
 import UpdateTask from '../../pages/different-components/update-task/update-task.tsx';
 import NewTaskSubtask from '../../pages/different-components/new-task-subtask/new-task-subtask.tsx';
+import Defect from '../../pages/different-components/defect/defect.tsx';
 
 function App(): JSX.Element {
   return (
@@ -111,6 +112,14 @@ function App(): JSX.Element {
             element={
               <PrivateRoute>
                 <Story />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={AppRoute.Defect}
+            element={
+              <PrivateRoute>
+                <Defect />
               </PrivateRoute>
             }
           />

@@ -75,7 +75,7 @@ function NewDefect(): JSX.Element {
     dispatch(createTask(EpicData))
       .then((action) => {
         if (createTask.fulfilled.match(action)) {
-          const path = generatePath(`${AppRoute.Story}`, { id: action.payload.simpleId });
+          const path = generatePath(`${AppRoute.Defect}`, { id: action.payload.simpleId });
           navigate(path);
         }
       });

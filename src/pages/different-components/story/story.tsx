@@ -8,8 +8,9 @@ import {useAppDispatch, useAppSelector} from '../../../hooks';
 import {getCurrentTask} from '../../../store/task-slice/task-selector.ts';
 import {AppRoute} from '../../../const.ts';
 import {useEffect} from 'react';
-import {getTaskBySimpleId} from '../../../store/api-actions.ts';
+import {getAllComments, getTaskBySimpleId} from '../../../store/api-actions.ts';
 import TaskContent from '../../pages-components/task-content/task-content.tsx';
+import {getProjectInfo} from '../../../store/project-slice/project-selector.ts';
 
 function Story(): JSX.Element {
   const {id} = useParams<{
@@ -18,6 +19,10 @@ function Story(): JSX.Element {
   const dispatch = useAppDispatch();
   const currentTask = useAppSelector(getCurrentTask);
   const navigate = useNavigate();
+  const currentProject = useAppSelector(getProjectInfo);
+
+  const projectId = currentProject?.id;
+  const simpleId = currentTask?.simpleId;
 
   const handleAddSubtask = () => {
     if(!currentTask?.id) {
@@ -32,6 +37,12 @@ function Story(): JSX.Element {
       dispatch(getTaskBySimpleId(id));
     }
   }, [id, dispatch]);
+
+  useEffect(() => {
+    if (projectId && simpleId) {
+      dispatch(getAllComments({ projectId,simpleId })); // Передаём один объект
+    }
+  }, [projectId, simpleId, dispatch]);
 
   if (!currentTask) {
     return <div className="loading">Загрузка Story...</div>;

@@ -26,6 +26,7 @@
 
 .message-list__description {
   background-color: $buttonColor;
+  justify-content: space-between;
   border-radius: 15px;
   display: flex;
   p {
@@ -38,6 +39,17 @@
     height: calc($index * 0.8);
     margin: calc($index * 0.5) calc($index * 0.2) calc($index * 0.5) calc($index * 0);
     cursor: pointer;
+  }
+}
+
+.message-actions {
+  display: flex;
+  margin-right: calc($index * 0.5);
+
+  button {
+    background-color: rgba(20, 46, 20, 0);
+    border: none;
+    outline: none;
   }
 }
 

@@ -22,9 +22,7 @@ export default function useWeeks() {
         const endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + 6);
 
-        const formatDate = (date: Date) => {
-          return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
-        };
+        const formatDate = (date: Date) => date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
 
         weeksArray.push({
           number: week,

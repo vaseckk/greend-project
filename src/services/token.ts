@@ -18,9 +18,7 @@ export const saveAccessToken = (token: string): void => {
   localStorage.setItem(ACCESS_TOKEN_KEY, cleanToken);
 };
 
-export const getRefreshToken = (): string => {
-  return localStorage.getItem(REFRESH_TOKEN_KEY) || '';
-};
+export const getRefreshToken = (): string => localStorage.getItem(REFRESH_TOKEN_KEY) || '';
 
 export const saveRefreshToken = (token: string): void => {
   const cleanToken = token.replace(BEARER_PREFIX_REGEX, '');

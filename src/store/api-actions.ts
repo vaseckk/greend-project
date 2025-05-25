@@ -472,7 +472,7 @@ export const getSprint = createAppAsyncThunk<SprintData, {projectId: string; spr
   'sprint/getSprint',
   async ({ projectId, sprintId}, { extra: api }) => {
     const { data } = await api.get<SprintData>(
-      `${APIRoute.ProjectCreateApi}/${projectId}/${APIRoute.SprintApi}/${sprintId}`,
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.SprintApi}/${sprintId}`,
     );
     return data;
   }

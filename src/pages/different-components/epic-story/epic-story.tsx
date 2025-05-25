@@ -96,7 +96,7 @@ function EpicStory(): JSX.Element {
 
                     <Link
                       to={generatePath(AppRoute.Edit, { id: currentTask.simpleId })}
-                      state={{ taskType: 'EPIC' }} // Передаём тип задачи
+                      state={{ taskType: 'EPIC' }}
                       className="edit-project"
                     >
                       <button className="edit-project__button">

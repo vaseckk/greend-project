@@ -54,6 +54,13 @@
   font-family: $userfont;
 }
 
+.time-sheet_between {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .time-interval {
   height: calc($index * 1.2);
   margin-left: calc($index * 0.5);

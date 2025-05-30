@@ -43,7 +43,7 @@ function Project(): JSX.Element {
     if(!project?.id) {
       return;
     }
-    const path = generatePath(`${AppRoute.NewTask}/:id`, { id: project.id });
+    const path = generatePath(`${AppRoute.NewTaskEpic}/:id`, { id: project.id });
     navigate(path);
   };
 

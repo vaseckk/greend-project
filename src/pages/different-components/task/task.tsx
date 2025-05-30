@@ -6,31 +6,61 @@ import {Helmet} from 'react-helmet-async';
 import {generatePath, Link, useParams} from 'react-router-dom';
 import {useAppDispatch, useAppSelector} from '../../../hooks';
 import {getCurrentTask} from '../../../store/task-slice/task-selector.ts';
-import {AppRoute, STATUSES_LIST} from '../../../const.ts';
+import {AppRoute, TIME_SHEET_UNITS} from '../../../const.ts';
 import {FormEvent, useEffect, useMemo} from 'react';
-import {getTaskBySimpleId, updateTaskStatus} from '../../../store/api-actions.ts';
+import {createLogs, getAppropriateStatus, getTaskBySimpleId, updateTaskStatus} from '../../../store/api-actions.ts';
 import TaskContent from '../../pages-components/task-content/task-content.tsx';
 import {useDropdownInput} from '../../../hooks/use-dropdown-input/use-dropdown-input.ts';
 import {Statuses} from '../../../types/types.ts';
+import {getAppropriateStatusSelector} from '../../../store/status-slice/status-selector.ts';
+import useDropdownButton from '../../../hooks/use-dropdown-button/use-dropdown-button.ts';
+import {getProjectInfo} from '../../../store/project-slice/project-selector.ts';
+import TimeLogsForm from '../../pages-components/logs-form/logs-form.tsx';
 
 function Task(): JSX.Element {
   const {id} = useParams<{
     id: string;
   }>();
   const dispatch = useAppDispatch();
+  const dropdownLogs = useDropdownButton();
   const currentTask = useAppSelector(getCurrentTask);
+  const appropriateStatuses = useAppSelector(getAppropriateStatusSelector);
+  const currentProject = useAppSelector(getProjectInfo);
+
+  const handleSubmitLogs = (data: {
+    comment: string;
+    timeEstimation: { amount: number; timeUnit: typeof TIME_SHEET_UNITS[number] };
+    date: string;
+  }) => {
+    if (!currentTask?.simpleId || !currentProject?.id) return;
+
+    dispatch(
+      createLogs({
+        projectId: currentProject.id,
+        simpleId: currentTask.simpleId,
+        logsData: data,
+      })
+    )
+      .unwrap()
+      .then(() => {
+        dropdownLogs.closeDropdown();
+      })
+      .catch(() => {
+        // Обработка ошибки
+      });
+  };
 
   const statusOptions = useMemo(() =>
-    STATUSES_LIST.map((status) => ({
-      code: status.toUpperCase().replace(/\s+/g, '_'),
-      value: status
-    })), []);
+    appropriateStatuses.map((status) => ({
+      code: status.code,
+      value: status.value
+    })), [appropriateStatuses]);
 
   const dropdownStatus = useDropdownInput(statusOptions.map((option) => option.value));
 
   const selectedStatus = useMemo(() =>
-    statusOptions.find((option) => option.value === dropdownStatus.inputValue),
-  [dropdownStatus.inputValue, statusOptions]
+      statusOptions.find((option) => option.value === dropdownStatus.inputValue),
+    [dropdownStatus.inputValue, statusOptions]
   );
 
   const handleSubmit = (e: FormEvent) => {
@@ -46,16 +76,33 @@ function Task(): JSX.Element {
   };
 
   useEffect(() => {
-    if (currentTask?.status) {
-      dropdownStatus.handleItemSelect(currentTask.status.value as Statuses);
-    }
-  }, [currentTask?.status]);
-
-  useEffect(() => {
     if (id) {
-      dispatch(getTaskBySimpleId(id));
+      dispatch(getTaskBySimpleId(id))
+        .unwrap()
+        .then((task) => {
+          if (task?.simpleId) {
+            dispatch(getAppropriateStatus({simpleId: task.simpleId}));
+          }
+        });
     }
   }, [id, dispatch]);
+
+  useEffect(() => {
+    if (currentTask?.status) {
+      const currentStatus = statusOptions.find(
+        (option) => option.code === currentTask.status.code
+      );
+      console.log('Current status check:', {
+        options: statusOptions,
+        currentStatus: currentTask.status,
+        found: currentStatus
+      });
+      if (currentStatus) {
+        dropdownStatus.handleItemSelect(currentStatus.value);
+      }
+    }
+  }, [currentTask?.status, statusOptions]);
+
 
   if (!currentTask) {
     return <div className="loading">Загрузка Подзадачи...</div>;
@@ -94,65 +141,78 @@ function Task(): JSX.Element {
                       </div>
                     </div>
 
+                    <div className='defect-edit'>
+                      <form onSubmit={handleSubmit} className="status-choose">
+                        <div ref={dropdownStatus.dropdownRef} className="status-choose__dropdown">
+                          <div className="status-container">
+                            <input
+                              type="text"
+                              value={dropdownStatus.inputValue}
+                              onChange={dropdownStatus.handleInputChange}
+                              onClick={dropdownStatus.toggleDropdown}
+                              placeholder="Выберите статус"
+                              className="status-input"
+                            />
+                            <button
+                              type="button"
+                              className="chevron-status"
+                              onClick={dropdownStatus.toggleDropdown}
+                            >
+                              <img src="../img/chevron.png" alt=""/>
+                            </button>
 
-                    <form onSubmit={handleSubmit} className="task-basic_type_container">
-                      <p>Статус</p>
-                      <div ref={dropdownStatus.dropdownRef} className="dropdown-container">
-                        <input
-                          type="text"
-                          value={dropdownStatus.inputValue}
-                          onChange={dropdownStatus.handleInputChange}
-                          onClick={dropdownStatus.toggleDropdown}
-                          placeholder="Выберите статус"
-                          className="status-input"
-                        />
-                        <button
-                          type="button"
-                          className="task-basic_type-choose"
-                          onClick={dropdownStatus.toggleDropdown}
-                        >
-                          <img src="../img/chevron.png" alt=""/>
-                        </button>
-
-                        {dropdownStatus.isOpen && (
-                          <div className="choose-project">
-                            <ul>
-                              {dropdownStatus.items.map((item) => {
-                                const option = statusOptions.find((opt) => opt.value === item);
-                                return (
-                                  <li
-                                    key={option?.code || item}
-                                    onClick={() => dropdownStatus.handleItemSelect(item)}
-                                  >
-                                    {item}
-                                  </li>
-                                );
-                              })}
-                            </ul>
+                            <button
+                              type="submit"
+                              className="save-status-button"
+                              disabled={
+                                !selectedStatus?.code ||
+                                selectedStatus.code === currentTask.status.code
+                              }
+                            >
+                              <img src="../img/check.png" alt=""/>
+                            </button>
                           </div>
-                        )}
-                      </div>
-                      <button
-                        type="submit"
-                        className="save-status-button"
-                        disabled={
-                          !selectedStatus?.code ||
-                          selectedStatus.code === currentTask.status.code
-                        }
-                      >
-                        Сохранить статус
-                      </button>
-                    </form>
+                          {dropdownStatus.isOpen && (
+                            <div className="choose-status">
+                              <ul>
+                                {dropdownStatus.items.map((item) => {
+                                  const option = statusOptions.find((opt) => opt.value === item);
+                                  return (
+                                    <li
+                                      key={option?.code || item}
+                                      onClick={() => dropdownStatus.handleItemSelect(item)}
+                                    >
+                                      {item}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </form>
 
-                    <Link
-                      to={generatePath(AppRoute.Edit, {id: currentTask.simpleId})}
-                      state={{taskType: 'SUBTASK'}} // Передаём тип задачи
-                      className="edit-project"
-                    >
-                      <button className="edit-project__button">
-                        <img src="../img/edit_square.png" alt="редактировать"/>
+                      <button className="add-logs_subtask" onClick={dropdownLogs.toggleDropdown}>
+                        <p>Залогировать время</p>
                       </button>
-                    </Link>
+                      <TimeLogsForm
+                        isOpen={dropdownLogs.isOpen}
+                        onClose={dropdownLogs.closeDropdown}
+                        onSubmit={handleSubmitLogs}
+                        taskName={currentTask.name}
+                        taskId={currentTask.simpleId}
+                      />
+
+                      <Link
+                        to={generatePath(AppRoute.Edit, {id: currentTask.simpleId})}
+                        state={{taskType: 'SUBTASK'}}
+                        className="edit-project"
+                      >
+                        <button className="edit-project__button">
+                          <img src="../img/edit_square.png" alt="редактировать"/>
+                        </button>
+                      </Link>
+                    </div>
                   </article>
 
                   <TaskContent task={currentTask} taskSimpleId={currentTask.simpleId}/>

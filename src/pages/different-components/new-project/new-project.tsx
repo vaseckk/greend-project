@@ -50,7 +50,7 @@ function NewProject(): JSX.Element {
       })).unwrap();
 
       setStatus(CreationStatus.Created);
-      const path = generatePath(`${AppRoute.Project}/:id`, { id: result.id });
+      const path = generatePath(`${AppRoute.Project}`, { id: result.id });
       navigate(path);
     } catch (err) {
       setStatus(CreationStatus.Failed);
@@ -86,7 +86,7 @@ function NewProject(): JSX.Element {
                 <section className="task-section">
                   <article className="task-basic_name_type">
                     <div className="task-basic_name_container">
-                      <p>Наименование</p>
+                      <p className="required-field">Наименование</p>
                       <div className="task-basic_name">
                         <input
                           name="name"
@@ -101,7 +101,7 @@ function NewProject(): JSX.Element {
 
                   <article className="task-basic_name_type--key">
                     <div className="task-basic_name_container">
-                      <p>Ключ проекта</p>
+                      <p className="required-field">Ключ проекта</p>
                       <div className="task-basic_name">
                         <input
                           name="key"
@@ -118,7 +118,7 @@ function NewProject(): JSX.Element {
 
                   <article className="task-basic_description">
                     <p>Описание</p>
-                    <div className="task-basic_description_container">
+                    <div className="task-basic_description_container__project">
                       <textarea
                         name="description"
                         value={projectData.description}

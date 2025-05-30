@@ -5,8 +5,9 @@ export const MAX_LENGTH_SHOW_TAGS = 4;
 export const MIN_LENGTH_SHOW_TAGS = 0;
 export const ALLOWED_STORY_POINTS = [1, 2, 3, 5, 8, 13] as const;
 export const TIME_UNITS = ['NANOSECONDS', 'MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'MINUTES', 'HOURS', 'DAYS'] as const;
+export const TIME_SHEET_UNITS = ['MINUTES', 'HOURS'] as const;
 
-export const BACKEND_URL = 'http://api.anst-dev.ru';
+export const BACKEND_URL = 'http://api.anst-dev.ru:8090';
 export const REQUEST_TIMEOUT = 5000;
 
 export const StatusCodeMapping: Record<number, boolean> = {
@@ -16,7 +17,7 @@ export const StatusCodeMapping: Record<number, boolean> = {
 };
 
 export enum AppRoute {
-  NewTask = '/task',
+  NewTaskEpic = '/newEpic',
   NewTaskStory = '/newStory',
   NewTaskSubtask = '/newSubtask',
   NewDefect = '/newDefect',
@@ -31,7 +32,7 @@ export enum AppRoute {
   Epic = '/epic/:id',
   Story = '/story/:id',
   Project = '/project/:id',
-  AllProjects = '/allProjects',
+  AllProjects = '/',
   Task = '/task/:id',
   Defect = '/defect/:id',
   Login = '/login',
@@ -48,7 +49,7 @@ export const navItems = [
     path: AppRoute.TimeTrackerTask
   },
   { text: 'Доски agile',
-    icon: '/img/select_window.png',
+    icon: '/img/select_window_3.png',
     path: AppRoute.BoardsAgile
   },
 ];
@@ -62,11 +63,11 @@ export enum AuthorizationStatus {
 
 export enum CodeStatus {
   Unknown = 'unknown',
-  Sending = 'sending', // Код отправляется
-  Sent = 'sent', // Код успешно отправлен
-  Verifying = 'verifying', // Код проверяется
-  Verified = 'verified', // Код успешно проверен
-  Failed = 'failed', // Ошибка
+  Sending = 'sending',
+  Sent = 'sent',
+  Verifying = 'verifying',
+  Verified = 'verified',
+  Failed = 'failed',
 }
 
 export enum CreationStatus {
@@ -118,6 +119,11 @@ export enum APIRoute {
   CommentApi = '/comments',
   SprintApi = '/sprint',
   SprintAllApi = '/sprint/all',
+  DictionariesApi = 'dictionaries',
+  AppropriateStatusesApi = 'appropriate-statuses',
+  TimeSheetProjectApi = '/time-sheet',
+  TimeSheetTaskApi = '/all-projects',
+  Notifications = '/notifications',
 }
 
 export enum NameSpace {
@@ -134,7 +140,11 @@ export enum NameSpace {
   Filter = 'filter',
   Tags = 'tags',
   Sprint = 'sprint',
-  Comment = 'comment'
+  Comment = 'comment',
+  Status = 'status',
+  Logs = 'logs',
+  TimeSheet = 'timeSheet',
+  Notifications = 'notifications'
 }
 
 export const TelegramAuthRoute = [
@@ -173,3 +183,13 @@ export const StatusPriority = {
 } as const;
 
 export const STATUSES_LIST: Statuses[] = ['OPEN', 'IN_PROGRESS', 'REVIEW', 'RESOLVED', 'QA_READY', 'IN_QA', 'CLOSED'];
+
+export function formatDate(timestamp: number): string {
+  return new Date(timestamp).toLocaleString('ru-RU', {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}

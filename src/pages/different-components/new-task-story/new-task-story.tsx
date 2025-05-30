@@ -155,14 +155,14 @@ function NewTaskStory(): JSX.Element {
                     <article className="task-basic_title">
                       <div className="task-basic_title_container">
                         <h1 className="task-basic_title_name">
-                          Создание новой Story в Эпике {currentEpic?.name}
+                          Создание новой Story в {currentEpic?.name}
                         </h1>
                       </div>
                     </article>
 
                     <article className="task-basic_name_type">
                       <div className="task-basic_name_container">
-                        <p>Наименование</p>
+                        <p className="required-field">Наименование</p>
                         <div className="task-basic_name">
                           <input
                             name="name"
@@ -269,7 +269,7 @@ function NewTaskStory(): JSX.Element {
                       </div>
 
                       <div className="task-basic_tags_container" ref={dropdownSprint.dropdownRef}>
-                        <p>Спринт</p>
+                        <p className="required-field">Спринт</p>
                         <button
                           type="button"
                           className="task-basic_type-choose"
@@ -315,7 +315,7 @@ function NewTaskStory(): JSX.Element {
 
                     <article className="task-basic_type-priority-complexity">
                       <div className="task-basic_type_container">
-                        <p>Приоритет</p>
+                        <p className="required-field">Приоритет</p>
                         <button
                           type="button"
                           className="task-basic_type-choose"
@@ -368,7 +368,7 @@ function NewTaskStory(): JSX.Element {
                     </article>
 
                     <article className="story-points">
-                      <p>Выберите story points</p>
+                      <p className="required-field">Выберите story points</p>
                       <div className="story-points_container">
                         <select
                           value={EpicData.storyPoints}

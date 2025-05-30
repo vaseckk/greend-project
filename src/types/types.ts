@@ -4,7 +4,7 @@ import {
   CodeStatus,
   CreationStatus,
   GetAllUser,
-  TaskStatus,
+  TaskStatus, TIME_SHEET_UNITS,
   TIME_UNITS
 } from '../const.ts';
 import {ALLOWED_STORY_POINTS} from '../const.ts';
@@ -129,6 +129,11 @@ export interface TimeEstimationData {
   amount: number;
 }
 
+export interface TimeEstimationSheetData {
+  timeUnit: typeof TIME_SHEET_UNITS[number];
+  amount: number;
+}
+
 export interface TaskByFilter {
   payload: PayloadData;
   projectId: string;
@@ -175,7 +180,13 @@ export interface TaskData {
     firstName: string;
     lastName: string;
   };
+  epicTask: {
+    id: string;
+    simpleId: string;
+    name: string;
+  }
   storyTask: {
+    id: string;
     simpleId: string;
     name: string;
   };
@@ -223,6 +234,8 @@ export interface StoriesData {
   simpleId: string;
   name: string;
   status: string;
+  assigneeFirstName: string;
+  assigneeLastName: string;
   priority: PriorityType;
   assigneeId: string;
   subtasks: SubtaskData[];
@@ -287,13 +300,13 @@ export interface NotificationsData {
 export interface CreateLogs {
   id: string;
   comment: string;
-  timeEstimation: TimeEstimationData;
+  timeEstimation: TimeEstimationSheetData;
   date: string;
 }
 
-export type UpdateLogsResponse = Omit<CreateLogs, 'id'>;
+export type UpdateLogsRequest = Omit<CreateLogs, 'id'>;
 
-export interface UpdateLogsRequest {
+export interface UpdateLogsResponse {
   id: string;
 }
 
@@ -353,6 +366,17 @@ export interface SprintAllData {
   startDate: string;
   endDate: string;
   isActive: boolean;
+}
+
+export interface TimeSheetProjectData {
+  date: string;
+  timeEstimation: TimeEstimationSheetData;
+  taskSimpleId: string;
+  taskName: string;
+  comment: string;
+  status: string;
+  projectId: string;
+  id: string;
 }
 
 //--- STATE ---//
@@ -455,9 +479,30 @@ export type UpdateTaskRequestData = {
   dueDate?: string;
   timeEstimation?: TimeEstimationData;
   tagIds?: string[];
-  projectId: string;
 } & (
   | { type: 'STORY'; epicTaskId?: string }
   | { type: 'SUBTASK' | 'DEFECT'; storyTaskId?: string }
   | { type: 'EPIC' }
   );
+
+export interface AppropriateStatusState {
+  appropriateStatus: CodeValue[],
+  status: GetAllUser,
+  error: string | null;
+}
+
+export interface LogsState {
+  logs: CreateLogs | null;
+  deleteLog: TimeSheetProjectData[];
+  status: CreationStatus;
+  error: string | null;
+  loading: boolean;
+}
+
+export interface TimeSheetState {
+  timeSheetProject: TimeSheetProjectData[];
+  timeSheetTask: TimeSheetProjectData[];
+  status: GetAllUser;
+  error: string | null;
+  loading: boolean;
+}

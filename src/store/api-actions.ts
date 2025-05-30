@@ -3,7 +3,7 @@ import {AxiosInstance} from 'axios';
 import {AppDispatch, AppState} from '../types/state.ts';
 import {
   AllComments,
-  AuthTokens,
+  AuthTokens, CodeValue,
   CreateComment,
   CreateLogs,
   CreateProjectData,
@@ -18,7 +18,7 @@ import {
   SendCodeData, SprintAllData, SprintData,
   TaskByFilter,
   TaskData,
-  TaskFindByFilterResponse,
+  TaskFindByFilterResponse, TimeSheetProjectData,
   UpdateCommentRequest,
   UpdateCommentResponse,
   UpdateFilterRequest,
@@ -319,7 +319,7 @@ export const getUsersAutocomplete = createAppAsyncThunk<UserNameData[], string>(
 export const getNotifications = createAppAsyncThunk<NotificationsData[], undefined>(
   'notifications/getNotifications',
   async (_arg, {extra: api}) => {
-    const {data} = await api.get<NotificationsData[]>(APIRoute.UserInfoApi);
+    const {data} = await api.get<NotificationsData[]>(APIRoute.Notifications);
     return data;
   }
 );
@@ -333,7 +333,7 @@ export const createLogs = createAppAsyncThunk<
   'project/createLogs',
   async ({projectId, simpleId, logsData}, {extra: api}) => {
     const {data} = await api.post<CreateLogs>(
-      `${APIRoute.ProjectCreateApi}/${projectId}/${APIRoute.TaskCreateApi}/${simpleId}/${APIRoute.LogsApi}`,
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.TaskCreateApi}/${simpleId}${APIRoute.LogsApi}`,
       logsData
     );
     return data;
@@ -347,7 +347,7 @@ export const updateLogs = createAppAsyncThunk<
   'project/updateLogs',
   async ({projectId, simpleId, id, data}, {extra: api}) => {
     const response = await api.put<UpdateLogsResponse>(
-      `${APIRoute.ProjectCreateApi}/${projectId}/${APIRoute.TaskCreateApi}/${simpleId}/${APIRoute.LogsApi}/${id}/`,
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.TaskCreateApi}/${simpleId}${APIRoute.LogsApi}/${id}`,
       data
     );
     return response.data;
@@ -361,7 +361,7 @@ export const deleteLogs = createAppAsyncThunk<
   'project/deleteLogs',
   async ({ projectId, simpleId, id }, { extra: api }) => {
     await api.delete(
-      `${APIRoute.ProjectCreateApi}/${projectId}/${APIRoute.TaskCreateApi}/${simpleId}/${APIRoute.LogsApi}/${id}`
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.TaskCreateApi}/${simpleId}${APIRoute.LogsApi}/${id}`
     );
     return id;
   }
@@ -390,7 +390,7 @@ export const updateComment = createAppAsyncThunk<
   'comments/updateComments',
   async ({projectId, simpleId, id, data}, {extra: api}) => {
     const response = await api.put<UpdateCommentResponse>(
-      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.TaskCreateApi}/${simpleId}${APIRoute.CommentApi}/${id}/`,
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.TaskCreateApi}/${simpleId}${APIRoute.CommentApi}/${id}`,
       data
     );
     return response.data;
@@ -404,7 +404,7 @@ export const deleteComments = createAppAsyncThunk<
   'comments/deleteComments',
   async ({ projectId, simpleId, id }, { extra: api }) => {
     await api.delete(
-      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.TaskCreateApi}/${simpleId}${APIRoute.CommentApi}/${id}/`,
+      `${APIRoute.ProjectCreateApi}/${projectId}${APIRoute.TaskCreateApi}/${simpleId}${APIRoute.CommentApi}/${id}`,
     );
     return id;
   }
@@ -491,5 +491,47 @@ export const getAllSprints = createAppAsyncThunk<SprintAllData[], {projectId: st
 
 //--- TIMESHEET ---//
 
+export const getTimeSheetProject = createAppAsyncThunk<TimeSheetProjectData[], {projectId: string, startDate: string, endDate: string}>(
+  'logs/getTimeSheetProject',
+  async ({ projectId, endDate, startDate}, { extra: api }) => {
+    const { data } = await api.get<TimeSheetProjectData[]>(
+      `${APIRoute.TimeSheetProjectApi}${APIRoute.ProjectCreateApi}/${projectId}`,
+      {
+        params: {
+          startDate,
+          endDate
+        }
+      }
+    );
+    return data;
+  }
+);
+
+export const getTimeSheetTask = createAppAsyncThunk<TimeSheetProjectData[], {startDate: string, endDate: string}>(
+  'logs/getTimeSheetTask',
+  async ({endDate, startDate}, { extra: api }) => {
+    const { data } = await api.get<TimeSheetProjectData[]>(
+      `${APIRoute.TimeSheetProjectApi}${APIRoute.TimeSheetTaskApi}`,
+      {
+        params: {
+          startDate,
+          endDate
+        }
+      }
+    );
+    return data;
+  }
+);
 
 //--- DICTIONARY ---//
+
+
+export const getAppropriateStatus = createAppAsyncThunk<CodeValue[], {simpleId: string}>(
+  'status/getAppropriateStatus',
+  async ({simpleId}, {extra: api}) => {
+    const {data} = await api.get<CodeValue[]>(
+      `/${APIRoute.DictionariesApi}/${simpleId}/${APIRoute.AppropriateStatusesApi}`,
+    );
+    return data;
+  }
+)

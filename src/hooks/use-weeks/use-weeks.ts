@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
+import { format, startOfWeek, addDays, isWithinInterval  } from 'date-fns';
 
 interface Week {
   number: number;
-  start: string;
-  end: string;
+  start: string; // Формат "yyyy-MM-dd"
+  end: string;   // Формат "yyyy-MM-dd"
+  displayStart: string; // Для отображения "dd.MM"
+  displayEnd: string;   // Для отображения "dd.MM"
+  isCurrent: boolean;   // Флаг текущей недели
 }
 
 export default function useWeeks() {
@@ -13,22 +17,31 @@ export default function useWeeks() {
     const getWeeksInYear = () => {
       const weeksArray: Week[] = [];
       const year = new Date().getFullYear();
+      const now = new Date();
+
+      // Находим первый понедельник года
+      let currentDate = startOfWeek(new Date(year, 0, 1), { weekStartsOn: 1 });
 
       for (let week = 1; week <= 52; week++) {
-        const startDate = new Date(year, 0, 1);
-        const dayOffset = startDate.getDay() === 0 ? 1 : (startDate.getDay() === 1 ? 0 : (8 - startDate.getDay()));
-        startDate.setDate(startDate.getDate() + (week - 1) * 7 - dayOffset);
+        const startDate = new Date(currentDate);
+        const endDate = addDays(startDate, 6);
 
-        const endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 6);
-
-        const formatDate = (date: Date) => date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+        const isCurrentWeek = isWithinInterval(now, {
+          start: startDate,
+          end: endDate
+        });
 
         weeksArray.push({
           number: week,
-          start: formatDate(startDate),
-          end: formatDate(endDate)
+          start: format(startDate, 'yyyy-MM-dd'),
+          end: format(endDate, 'yyyy-MM-dd'),
+          displayStart: format(startDate, 'dd.MM'),
+          displayEnd: format(endDate, 'dd.MM'),
+          isCurrent: isCurrentWeek
         });
+
+        // Переходим к следующей неделе
+        currentDate = addDays(endDate, 1);
       }
 
       return weeksArray;

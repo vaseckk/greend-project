@@ -28,6 +28,7 @@
 .title {
   display: flex;
   justify-content: center;
+  flex-direction: row;
   align-items: center;
   width: 100%;
   font-weight: 350;
@@ -35,20 +36,233 @@
   font-size: calc($index * 0.7);
 }
 
+.table_text {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: calc($index * 0.7);
+  font-weight: 350;
+  font-family: $userfont;
+  width: 100%;
+}
+
+.table-body {
+
+}
+
 .table_content {
-  height: 100vh;
-  text-align: center;
-  vertical-align: middle;
-  padding: 10px;
-  border: solid $accent;
-  border-width: 0 1px 1px 0;
+
 
   th {
     text-align: center;
-    vertical-align: middle;
+    vertical-align: top;
+    overflow-y: auto;
+    height: 100%;
     align-items: center;
     padding: 10px;
     border: solid $accent;
     border-width: 0 1px 1px 0;
+
+
+    &::-webkit-scrollbar-track {
+      background-color: rgba(245, 245, 245, 0);
+    }
+
+    &::-webkit-scrollbar {
+      width: calc($index * 0.6);
+      background-color: rgba(245, 245, 245, 0);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: $accent;
+      border-radius: 15px;
+      background-clip: content-box;
+      border: 8px solid transparent;
+    }
+  }
+}
+
+.day-tasks {
+  height: 73vh;
+  max-height: 73vh;
+}
+
+.add-logs {
+  width: 100%;
+  background-color: rgba(31, 43, 23, 0);
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  border: 1px solid $accent;
+  border-radius: 10px;
+  color: $borderColor;
+  cursor: pointer;
+  font-family: $userfont;
+  font-weight: 400;
+
+  &:hover {
+    background-color: $accent;
+    color: $textcolor;
+  }
+}
+
+.logs-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.logs-modal {
+  background: $textcolor;
+  border: 1px solid $accent;
+  border-radius: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  height: 50vh;
+  width: calc($index * 25);
+  padding: 20px;
+}
+
+.logs-modal_container {
+  width: 99%;
+  max-height: 70vh;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar-track {
+    background-color: rgba(245, 245, 245, 0);
+  }
+
+  &::-webkit-scrollbar {
+    width: calc($index * 0.6);
+    background-color: rgba(245, 245, 245, 0);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $accent;
+    border-radius: 15px;
+    background-clip: content-box;
+    border: 4px solid transparent;
+  }
+}
+
+.logs-modal-content {
+  h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #333;
+    text-align: center;
+  }
+
+  .weeks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-weight: 500;
+
+    .week-item {
+      padding: 8px 12px;
+      font-weight: 400;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #f5f5f5;
+      }
+    }
+  }
+}
+
+.close-logs-modal {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-family: $userfont;
+
+  p {
+    margin: 0;
+    color: $borderColor;
+    font-weight: 400;
+    font-family: $userfont;
+  }
+
+  img {
+    width: calc($index * 0.6);
+    height: calc($index * 0.6);
+    cursor: pointer;
+  }
+}
+
+.task-item {
+  background-color: $buttonColor;
+  margin-bottom: calc($index * 0.8);
+  text-align: left;
+  border-radius: 15px;
+  color: $borderColor;
+  font-family: $userfont;
+  font-weight: 400;
+  font-size: calc($index * 0.55);
+  justify-content: center;
+  display: flex;
+}
+
+.task-item_container {
+  width: 90%;
+}
+
+.task_title-sheet {
+  margin-top: calc($index * 0.2);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.task-name {
+  color: $accent;
+  font-size: calc($index * 0.65);
+  font-weight: 400;
+}
+
+.task-comment {
+  margin-bottom: calc($index * 0.2);
+  list-style-type: circle;
+}
+
+.task-status {
+
+}
+
+.no-tasks {
+  color: $borderColor;
+  font-family: $userfont;
+  font-weight: 400;
+}
+
+.task-item_edit {
+  width: 100%;
+  display: flex;
+  justify-content: right;
+  margin-bottom: calc($index * 0.2);
+
+  button {
+    background-color: rgba(20, 46, 20, 0);
+    border: none;
+    border-radius: 10px;
+    margin: 0 0 0 calc($index * 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    img {
+      width: calc($index * 0.7);
+    }
   }
 }

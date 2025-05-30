@@ -5,12 +5,14 @@ import {Helmet} from 'react-helmet-async';
 import {generatePath, Link, useParams} from 'react-router-dom';
 import {useAppDispatch, useAppSelector} from '../../../hooks';
 import {getCurrentTask} from '../../../store/task-slice/task-selector.ts';
-import {AppRoute, STATUSES_LIST} from '../../../const.ts';
+import {AppRoute} from '../../../const.ts';
 import {FormEvent, useEffect, useMemo} from 'react';
-import {getTaskBySimpleId, updateTaskStatus} from '../../../store/api-actions.ts';
+import {getAppropriateStatus, getTaskBySimpleId, updateTaskStatus} from '../../../store/api-actions.ts';
 import TaskContent from '../../pages-components/task-content/task-content.tsx';
 import {Statuses} from '../../../types/types.ts';
 import {useDropdownInput} from '../../../hooks/use-dropdown-input/use-dropdown-input.ts';
+import './defect.scss';
+import {getAppropriateStatusSelector} from '../../../store/status-slice/status-selector.ts';
 
 function Defect(): JSX.Element {
   const {id} = useParams<{
@@ -18,12 +20,13 @@ function Defect(): JSX.Element {
   }>();
   const dispatch = useAppDispatch();
   const currentStory = useAppSelector(getCurrentTask);
+  const appropriateStatuses = useAppSelector(getAppropriateStatusSelector);
 
   const statusOptions = useMemo(() =>
-    STATUSES_LIST.map((status) => ({
-      code: status.toUpperCase().replace(/\s+/g, '_'),
-      value: status
-    })), []);
+    appropriateStatuses.map((status) => ({
+      code: status.code,
+      value: status.value
+    })), [appropriateStatuses]);
 
   const dropdownStatus = useDropdownInput(statusOptions.map((option) => option.value));
 
@@ -45,16 +48,32 @@ function Defect(): JSX.Element {
   };
 
   useEffect(() => {
-    if (currentStory?.status) {
-      dropdownStatus.handleItemSelect(currentStory.status.value as Statuses);
-    }
-  }, [currentStory?.status]);
-
-  useEffect(() => {
     if (id) {
-      dispatch(getTaskBySimpleId(id));
+      dispatch(getTaskBySimpleId(id))
+        .unwrap()
+        .then((task) => {
+          if (task?.simpleId) {
+            dispatch(getAppropriateStatus({simpleId: task.simpleId}));
+          }
+        });
     }
   }, [id, dispatch]);
+
+  useEffect(() => {
+    if (currentStory?.status) {
+      const currentStatus = statusOptions.find(
+        (option) => option.code === currentStory.status.code
+      );
+      console.log('Current status check:', {
+        options: statusOptions,
+        currentStatus: currentStory.status,
+        found: currentStatus
+      });
+      if (currentStatus) {
+        dropdownStatus.handleItemSelect(currentStatus.value);
+      }
+    }
+  }, [currentStory?.status, statusOptions]);
 
   if (!currentStory) {
     return <div className="loading">Загрузка Дефекта...</div>;
@@ -93,64 +112,67 @@ function Defect(): JSX.Element {
                       </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="task-basic_type_container">
-                      <p>Статус</p>
-                      <div ref={dropdownStatus.dropdownRef} className="dropdown-container">
-                        <input
-                          type="text"
-                          value={dropdownStatus.inputValue}
-                          onChange={dropdownStatus.handleInputChange}
-                          onClick={dropdownStatus.toggleDropdown}
-                          placeholder="Выберите статус"
-                          className="status-input"
-                        />
-                        <button
-                          type="button"
-                          className="task-basic_type-choose"
-                          onClick={dropdownStatus.toggleDropdown}
-                        >
-                          <img src="../img/chevron.png" alt=""/>
-                        </button>
+                    <div className='defect-edit'>
+                      <form onSubmit={handleSubmit} className="status-choose">
+                        <div ref={dropdownStatus.dropdownRef} className="status-choose__dropdown">
+                          <div className="status-container">
+                            <input
+                              type="text"
+                              value={dropdownStatus.inputValue || currentStory.status.value}
+                              onChange={dropdownStatus.handleInputChange}
+                              onClick={dropdownStatus.toggleDropdown}
+                              placeholder="Выберите статус"
+                              className="status-input"
+                            />
+                            <button
+                              type="button"
+                              className="chevron-status"
+                              onClick={dropdownStatus.toggleDropdown}
+                            >
+                              <img src="../img/chevron.png" alt=""/>
+                            </button>
 
-                        {dropdownStatus.isOpen && (
-                          <div className="choose-project">
-                            <ul>
-                              {dropdownStatus.items.map((item) => {
-                                const option = statusOptions.find((opt) => opt.value === item);
-                                return (
-                                  <li
-                                    key={option?.code || item}
-                                    onClick={() => dropdownStatus.handleItemSelect(item)}
-                                  >
-                                    {item}
-                                  </li>
-                                );
-                              })}
-                            </ul>
+                            <button
+                              type="submit"
+                              className="save-status-button"
+                              disabled={
+                                !selectedStatus?.code ||
+                                selectedStatus.code === currentStory.status.code
+                              }
+                            >
+                              <img src="../img/check.png" alt=""/>
+                            </button>
                           </div>
-                        )}
-                      </div>
-                      <button
-                        type="submit"
-                        className="save-status-button"
-                        disabled={
-                          !selectedStatus?.code ||
-                          selectedStatus.code === currentStory.status.code
-                        }
-                      >
-                        Сохранить статус
-                      </button>
-                    </form>
+                          {dropdownStatus.isOpen && (
+                            <div className="choose-status">
+                              <ul>
+                                {dropdownStatus.items.map((item) => {
+                                  const option = statusOptions.find((opt) => opt.value === item);
+                                  return (
+                                    <li
+                                      key={option?.code || item}
+                                      onClick={() => dropdownStatus.handleItemSelect(item)}
+                                    >
+                                      {item}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </form>
 
-                    <Link
-                      to={generatePath(AppRoute.Edit, {id: currentStory.simpleId})}
-                      state={{taskType: 'DEFECT'}} // Передаём тип задачи
-                      className="edit-project"
-                    >
-                      <button className="edit-project__button">
-                        <img src="../img/edit_square.png" alt="редактировать"/>
-                      </button>
-                    </Link>
+                      <Link
+                        to={generatePath(AppRoute.Edit, {id: currentStory.simpleId})}
+                        state={{taskType: 'DEFECT'}}
+                        className="edit-project"
+                      >
+                        <button className="edit-project__button">
+                          <img src="../img/edit_square.png" alt="редактировать"/>
+                        </button>
+                      </Link>
+                    </div>
                   </article>
 
                   <TaskContent task={currentStory} taskSimpleId={currentStory.simpleId}/>

@@ -122,24 +122,24 @@ function SendMessageForm({taskSimpleId, editingComment, onCancelEdit, onUpdateSu
           onChange={handleInputChange}
           rows={1}
         />
-        {editingComment ? (
-          <div className="edit-actions">
-            <button
-              type="button"
-              className="cancel-edit"
-              onClick={onCancelEdit}
-            >
-              Отмена
-            </button>
+          {editingComment ? (
+            <div className="edit-actions">
+              <button
+                type="button"
+                className="send-message__button"
+                onClick={onCancelEdit}
+              >
+                <img className='send-message__img' src="../img/close.png" alt="Сохранить" onClick={onCancelEdit}/>
+              </button>
+              <button type="submit" className="send-message__button">
+                <img className='send-message__img' src="../img/send.png" alt="Сохранить"/>
+              </button>
+            </div>
+          ) : (
             <button type="submit" className="send-message__button">
-              <img className='send-message__img' src="../img/save.png" alt="Сохранить"/>
+              <img className='send-message__img' src="../img/send.png" alt="Отправить"/>
             </button>
-          </div>
-        ) : (
-          <button type="submit" className="send-message__button">
-            <img className='send-message__img' src="../img/send.png" alt="Отправить"/>
-          </button>
-        )}
+          )}
       </form>
     </div>
   );

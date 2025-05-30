@@ -12,8 +12,6 @@ import {ALLOWED_STORY_POINTS, AppRoute, TIME_UNITS} from '../../../const.ts';
 import {useDropdownInput} from '../../../hooks/use-dropdown-input/use-dropdown-input.ts';
 import './new-task-epic.scss';
 import UsersSelectSubtask from '../../pages-components/users-select-subtask/users-select-subtask.tsx';
-import {getAllSprintsSelector} from '../../../store/sprint-slice/sprint-selector.ts';
-import {setCurrentSprint} from '../../../store/sprint-slice/sprint-slice.ts';
 
 const PRIORITY_OPTIONS: PriorityType[] = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'TRIVIAL'];
 
@@ -26,10 +24,6 @@ function NewTaskEpic(): JSX.Element {
 
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const projectId = currentProject?.id;
-
-  const allSprints = useAppSelector(getAllSprintsSelector);
-  const sprintsNames = allSprints.map((sprint) => sprint.name);
-  const dropdownSprint = useDropdownInput(sprintsNames);
 
   const tagsProject = useAppSelector(getTagsProject);
   const tagNames = tagsProject.map((tag) => tag.name);
@@ -47,7 +41,6 @@ function NewTaskEpic(): JSX.Element {
     storyPoints: 1 as StoryPoint,
     assigneeId: '',
     reviewerId: '',
-    sprintId: '',
     dueDate: '',
     projectId: currentProject?.id || '',
     timeEstimation: {
@@ -160,7 +153,7 @@ function NewTaskEpic(): JSX.Element {
 
                     <article className="task-basic_name_type">
                       <div className="task-basic_name_container">
-                        <p>Наименование</p>
+                        <p className="required-field">Наименование</p>
                         <div className="task-basic_name">
                           <input
                             name="name"
@@ -265,55 +258,11 @@ function NewTaskEpic(): JSX.Element {
                           </div>
                         )}
                       </div>
-
-                      <div className="task-basic_tags_container" ref={dropdownSprint.dropdownRef}>
-                        <p>Спринт</p>
-                        <button
-                          type="button"
-                          className="task-basic_type-choose"
-                          onClick={dropdownSprint.toggleDropdown}
-                        >
-                          <input
-                            placeholder="Выберите спринт"
-                            value={dropdownSprint.inputValue}
-                            onChange={dropdownSprint.handleInputChange}
-                            readOnly
-                          />
-                          <img src="../img/chevron.png" alt=""/>
-                        </button>
-                        {dropdownSprint.isOpen && (
-                          <div className="choose-project">
-                            {allSprints.length > 0 ? (
-                              <ul>
-                                {allSprints.map((sprint) => (
-                                  <li
-                                    key={sprint.id}
-                                    onClick={() => {
-                                      dispatch(setCurrentSprint(sprint));
-                                      dropdownSprint.handleItemSelect(sprint.name); // Устанавливаем имя для отображения
-                                      setEpicData((prev) => ({
-                                        ...prev,
-                                        sprintId: sprint.id // Устанавливаем id спринта
-                                      }));
-                                      dropdownSprint.toggleDropdown();
-                                    }}
-                                    className="selected"
-                                  >
-                                    {sprint.name}
-                                  </li>
-                                ))}
-                              </ul>
-                            ) : (
-                              <div className="empty-message">Нет доступных спринтов</div>
-                            )}
-                          </div>
-                        )}
-                      </div>
                     </article>
 
                     <article className="task-basic_type-priority-complexity">
                       <div className="task-basic_type_container">
-                        <p>Приоритет</p>
+                        <p className="required-field">Приоритет</p>
                         <button
                           type="button"
                           className="task-basic_type-choose"
@@ -366,7 +315,7 @@ function NewTaskEpic(): JSX.Element {
                     </article>
 
                     <article className="story-points">
-                      <p>Выберите story points</p>
+                      <p className="required-field">Выберите story points</p>
                       <div className="story-points_container">
                         <select
                           value={EpicData.storyPoints}

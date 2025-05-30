@@ -21,14 +21,19 @@ function Story(): JSX.Element {
   const navigate = useNavigate();
   const currentProject = useAppSelector(getProjectInfo);
 
-  const projectId = currentProject?.id;
-  const simpleId = currentTask?.simpleId;
-
   const handleAddSubtask = () => {
     if(!currentTask?.id) {
       return;
     }
     const path = generatePath(`${AppRoute.NewTaskSubtask}/:id`, { id: currentTask?.id });
+    navigate(path);
+  };
+
+  const handleAddDefect = () => {
+    if(!currentTask?.id) {
+      return;
+    }
+    const path = generatePath(`${AppRoute.NewDefect}/:id`, { id: currentTask?.id });
     navigate(path);
   };
 
@@ -39,10 +44,13 @@ function Story(): JSX.Element {
   }, [id, dispatch]);
 
   useEffect(() => {
-    if (projectId && simpleId) {
-      dispatch(getAllComments({ projectId,simpleId })); // Передаём один объект
+    if (currentTask?.id && currentProject?.id) {
+      dispatch(getAllComments({
+        projectId: currentProject.id,
+        simpleId: currentTask.simpleId
+      }));
     }
-  }, [projectId, simpleId, dispatch]);
+  }, [currentTask?.id, currentProject?.id, dispatch]);
 
   if (!currentTask) {
     return <div className="loading">Загрузка Story...</div>;
@@ -87,7 +95,7 @@ function Story(): JSX.Element {
                     </div>
 
                     <div className="new-task__link">
-                      <button className="new-task" onClick={handleAddSubtask}>
+                      <button className="new-task" onClick={handleAddDefect}>
                         Создать Дефект
                       </button>
                     </div>

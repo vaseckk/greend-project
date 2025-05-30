@@ -9,6 +9,9 @@ import {taskReducer} from './task-slice/task-slice.ts';
 import {notificationsReducer} from './notifications-slice/notifictaions-slice.ts';
 import {sprintReducer} from './sprint-slice/sprint-slice.ts';
 import {commentReducer} from './comments-slice/comments-slice.ts';
+import {statusReducer} from './status-slice/status-slice.ts';
+import {logsReducer} from './logs-slice/logs-slice.ts';
+import {timeSheetReducer} from './time-sheet-slice/time-sheet-slice.ts';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -21,6 +24,9 @@ const rootReducer = combineReducers({
   notifications: notificationsReducer,
   sprint: sprintReducer,
   comment: commentReducer,
+  status: statusReducer,
+  logs: logsReducer,
+  timeSheet: timeSheetReducer,
 });
 
 export default rootReducer;

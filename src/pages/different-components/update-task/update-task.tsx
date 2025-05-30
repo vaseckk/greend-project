@@ -62,7 +62,6 @@ function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
     reviewerId: '',
     sprintId: '',
     dueDate: '',
-    projectId: currentProject?.id || '',
     timeEstimation: {
       timeUnit: TIME_UNITS[5],
       amount: 0,
@@ -109,14 +108,13 @@ function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
         reviewerId: currentTask.reviewer?.id || '',
         sprintId: currentTask.sprint?.id || '',
         dueDate: currentTask.dueDate,
-        projectId: currentProject?.id || '',
         timeEstimation: {
           timeUnit: TIME_UNITS[5],
           amount: currentTask.timeEstimation?.amount || 0,
         },
         tagsIds: currentTask.tags?.map((tag) => tag.id) || [],
-        epicTaskId: currentTask.id || '',
-        storyTaskId: currentTask.id || '',
+        epicTaskId: currentTask.epicTask?.id || '',
+        storyTaskId: currentTask.storyTask?.id || '',
       });
 
       setSelectedTagIds(currentTask.tags?.map((tag) => tag.id) || []);
@@ -142,7 +140,7 @@ function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!currentTask?.id || !currentProject?.id) {
+    if (!currentTask?.simpleId || !currentProject?.id) {
       return;
     }
 
@@ -159,7 +157,6 @@ function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
       dueDate: taskData.dueDate || undefined,
       timeEstimation: taskData.timeEstimation,
       tagIds: selectedTagIds,
-      projectId: currentProject.id,
     };
 
     // Формируем данные в зависимости от типа задачи
@@ -191,10 +188,10 @@ function UpdateTask({ taskType: propsTaskType }: UpdateTaskProps): JSX.Element {
         break;
     }
 
-    dispatch(updateTask({ simpleId: currentTask.id, data: updateData }))
+    dispatch(updateTask({ simpleId: currentTask.simpleId, data: updateData }))
       .then((action) => {
         if (updateTask.fulfilled.match(action)) {
-          const path = generatePath(`${getTaskRoute()}`, { id: currentTask.id });
+          const path = generatePath(`${getTaskRoute()}`, { id: currentTask.simpleId });
           navigate(path);
         }
       });

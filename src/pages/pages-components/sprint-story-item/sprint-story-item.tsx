@@ -1,16 +1,16 @@
 import {StoriesData, SubtaskData} from '../../../types/types.ts';
-import useDropdown from '../../../hooks/use-dropdown.tsx';
 import {generatePath, Link} from 'react-router-dom';
 import {AppRoute, statuses} from '../../../const.ts';
+import useDropdownButton from '../../../hooks/use-dropdown-button/use-dropdown-button.ts';
 
 interface StoryItemProps {
   story: StoriesData;
-  defects: SubtaskData[]; // или правильный тип для defects
+  defects: SubtaskData[];
   getStatusLabel: (priority: string) => string;
 }
 
 function StoryItem({ story, defects, getStatusLabel }: StoryItemProps) {
-  const StoryDropdown = useDropdown();
+  const StoryDropdown = useDropdownButton();
 
   return (
     <div className="story-container" ref={StoryDropdown.dropdownRef}>
@@ -54,6 +54,7 @@ function StoryItem({ story, defects, getStatusLabel }: StoryItemProps) {
                                 <div className="table_text-story">
                                   {subtask.simpleId}: {subtask.name}
                                 </div>
+                                <span>{subtask.assigneeFirstName} {subtask.assigneeLastName}</span>
                                 <div className="table-count-story">
                                   <span>{getStatusLabel(subtask.priority)}</span>
                                   <span className="count-time-span">

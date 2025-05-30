@@ -1,15 +1,20 @@
 import { Navigate } from 'react-router-dom';
 import { AppRoute, AuthorizationStatus } from '../../const';
-import {useAppDispatch, useAppSelector} from '../../hooks';
-import {getAuthStatus} from '../../store/auth-slice/auth-selector.ts';
+import {useAppDispatch} from '../../hooks';
 import {useEffect, useState} from 'react';
 import {getAccessToken} from '../../services/token.ts';
 import {checkAuthAction} from '../../store/api-actions.ts';
 import {LoadingScreen} from '../../pages/pages-components/loading-screen/loading-screen.tsx';
 
-function PrivateRoute({ children }: { children: JSX.Element }) {
+type PrivateRouteProps = {
+  children: JSX.Element;
+  authorizationStatus: AuthorizationStatus;
+}
+
+function PrivateRoute(props: PrivateRouteProps): JSX.Element{
+  const {children, authorizationStatus} = props;
+
   const dispatch = useAppDispatch();
-  const authStatus = useAppSelector(getAuthStatus);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
@@ -41,9 +46,11 @@ function PrivateRoute({ children }: { children: JSX.Element }) {
     return <LoadingScreen />;
   }
 
-  return authStatus === AuthorizationStatus.Auth
-    ? children
-    : <Navigate to={AppRoute.Login} replace />;
+  return (
+    authorizationStatus === AuthorizationStatus.Auth
+      ? children
+      : <Navigate to={AppRoute.Login} />
+  );
 }
 
 export default PrivateRoute;

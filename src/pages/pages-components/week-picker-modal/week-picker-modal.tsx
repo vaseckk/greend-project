@@ -1,10 +1,13 @@
-import './week-picker-modal.scss'; // Создайте этот файл для стилей
+import './week-picker-modal.scss';
 
 interface WeekPickerModalProps {
   weeks: {
     number: number;
     start: string;
     end: string;
+    displayStart: string;
+    displayEnd: string;
+    isCurrent: boolean;
   }[];
   onSelect: (week: {number: number; start: string; end: string}) => void;
   onClose: () => void;
@@ -21,13 +24,14 @@ function WeekPickerModal({ weeks, onSelect, onClose }: WeekPickerModalProps) {
               {weeks.map((week) => (
                 <div
                   key={week.number}
-                  className="week-item"
+                  className={`week-item ${week.isCurrent ? 'current-week' : ''}`}
                   onClick={() => {
                     onSelect(week);
                     onClose();
                   }}
                 >
-                  неделя {week.number} ({week.start} - {week.end})
+                  неделя {week.number} ({week.displayStart} - {week.displayEnd})
+                  {week.isCurrent && <span className="current-week-badge">Текущая</span>}
                 </div>
               ))}
             </div>

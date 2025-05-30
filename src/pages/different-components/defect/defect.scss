@@ -1,0 +1,303 @@
+@import '/src/main.scss';
+
+.defect-edit {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.status-choose {
+  display: flex;
+  flex-direction: column;
+
+  p {
+    margin: 0;
+  }
+}
+
+.status-choose__dropdown {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-container {
+  display: flex;
+  flex-direction: row;
+  border-radius: 10px;
+  width: calc($index * 8);
+  margin-right: calc($index * 1);
+  border: 1px solid $accent;
+  height: calc($index * 0.99);
+  align-items: center;
+}
+
+.status-input {
+  background-color: rgba(20, 46, 20, 0);
+  border-radius: 10px;
+  width: 80%;
+  border: none;
+  outline: none;
+  height: 95%;
+  margin-left: 5px;
+  font-size: calc($index * 0.5);
+  font-family: $userfont;
+}
+
+.chevron-status {
+  background-color: rgba(20, 46, 20, 0);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  height: 75%;
+  align-items: center;
+  display: flex;
+
+  img {
+    width: calc($index * 0.6);
+  }
+}
+
+.save-status-button {
+  background-color: $accent;
+  border-radius: 10px;
+  height: 75%;
+  border: none;
+  outline: none;
+  margin-right: 5px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    margin: 0;
+    width: calc($index * 0.5);
+  }
+}
+
+.choose-status {
+  background-color: $textcolor;
+  position: absolute;
+  width: calc($index * 8);
+  z-index: 1;
+  border: 1px solid $accent;
+  display: flex;
+  border-radius: 15px;
+  min-height: auto;
+  max-height: calc($index * 5);
+  margin-top: calc($index * 1.2);
+  overflow-y: auto;
+  align-items: flex-start;
+
+  ul {
+    list-style: none;
+    margin: 0 0 5px 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+
+
+    li {
+      margin: 5px 10px;
+      cursor: pointer;
+      font-size: calc($index * 0.6);
+      font-family: $userfont;
+      border: solid $accent;
+      border-width: 0 0 1px 0;
+      width: 100%;
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: rgba(245, 245, 245, 0);
+  }
+
+  &::-webkit-scrollbar {
+    width: calc($index * 0.6);
+    background-color: rgba(245, 245, 245, 0);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $accent;
+    border-radius: 15px;
+    background-clip: content-box;
+    border: 8px solid transparent;
+  }
+}
+
+.add-logs_subtask {
+  background-color: rgba(11, 25, 11, 0);
+  border-radius: 10px;
+  width: calc($index * 8);
+  border: 1px solid $accent;
+  height: calc($index * 1);
+  margin-right: calc($index * 1);
+  align-items: center;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+
+  p {
+    margin: 0;
+    font-size: calc($index * 0.5);
+    font-weight: 350;
+    font-family: $userfont;
+  }
+
+  &:hover {
+    background-color: $accent;
+    color: $textcolor;
+  }
+}
+
+.logs_task {
+  margin-top: calc($index * 0.75);
+
+  p {
+    margin: 0;
+    font-size: calc($index * 0.5);
+    opacity: .8;
+    color: $borderColor;
+  }
+}
+
+.logs_task-name {
+  margin-top: calc($index * 0.2);
+  border: dashed $accent;
+  font-size: calc($index * 0.55);
+  font-weight: 350;
+  border-width: 0 0 1px 0;
+}
+
+.logs_time-estimation {
+  width: 100%;
+  margin-top: calc($index * 0.75);
+
+  p {
+    margin: 0;
+    font-size: calc($index * 0.5);
+    opacity: .8;
+    color: $borderColor;
+  }
+}
+
+.logs_time-estimation__container {
+  margin-top: calc($index * 0.3);
+  border: dashed $accent;
+  font-size: calc($index * 0.55);
+  font-weight: 350;
+  border-width: 0 0 1px 0;
+}
+
+.logs_time-estimation__input-container {
+  display: flex;
+  justify-content: space-between;
+
+  input {
+    background-color: rgba(11, 25, 11, 0);
+    border: none;
+    outline: none;
+    font-size: calc($index * 0.55);
+    font-weight: 350;
+    width: 80%;
+  }
+  select {
+    background-color: rgba(11, 25, 11, 0);
+    border: none;
+    outline: none;
+    font-size: calc($index * 0.55);
+    font-weight: 350;
+    width: 20%;
+
+    option {
+      border: 1px solid $accent;
+      width: calc($index * 8);
+      display: flex;
+    }
+  }
+}
+
+.logs_time-end_container {
+  width: 100%;
+  margin-top: calc($index * 0.75);
+
+  p {
+    margin: 0;
+    font-size: calc($index * 0.5);
+    opacity: .8;
+    color: $borderColor;
+  }
+}
+
+.logs_time-end {
+  margin-top: calc($index * 0.3);
+  border: dashed $accent;
+  font-size: calc($index * 0.55);
+  font-weight: 350;
+  border-width: 0 0 1px 0;
+
+  input {
+    background-color: rgba(11, 25, 11, 0);
+    border: none;
+    outline: none;
+    font-size: calc($index * 0.55);
+    font-weight: 350;
+    font-family: $userfont;
+  }
+}
+
+.logs_comment {
+  width: 100%;
+  margin-top: calc($index * 0.75);
+
+  p {
+    margin: 0;
+    font-size: calc($index * 0.5);
+    opacity: .8;
+    color: $borderColor;
+  }
+}
+
+.logs_comment_container {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  margin-top: calc($index * 0.3);
+
+  textarea {
+    width: 99%;
+    border: 1px solid $accent;
+    outline: none;
+    background-color: rgba(11, 25, 11, 0);
+    color: $borderColor;
+    align-items: center;
+    display: flex;
+    font-size: calc($index * 0.6);
+    resize: none;
+    vertical-align: middle;
+    max-height: calc($index * 5);
+    border-radius: 10px;
+    overflow-y: auto;
+    min-height: calc($index * 0.8);
+  }
+}
+
+.save-logs_container {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+}
+
+.save-logs {
+  margin-top: calc($index * 1);
+  width: calc($index * 8);
+  border: none;
+  height: calc($index * 1);
+  background-color: $accent;
+  border-radius: 10px;
+  color: $textcolor;
+  font-family: $userfont;
+  font-size: calc($index * 0.55);
+  font-weight: 350;
+  cursor: pointer;
+}
